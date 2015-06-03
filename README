@@ -1,0 +1,52 @@
+Dark Search
+June 2015
+
+This code contains functions for the calculation of direct detection rates with full nuclear form factors.
+It is currently designed to output the full likelihood in the WIMP mass vs. proton cross section space.
+
+It has been constructed to facilitate the easy introduction of new velocity distributions and form factors.
+
+
+Installation
+---------------------
+requires:
+Multinest (included)(a nested sampling algorithm that also evaluates posterior probabilities, Copyright Farhan Feroz & Mike Hobson)
+LAPACK    (linear algebra package required by multinest)
+GNU Science Lib   (used for probability functions)
+
+optional:
+open-mpi (or other mpi flavor) 
+
+You may need to modify the makefile for your the libraries on your machine. 
+
+To build simply type 'make'  
+To build with mpi type 'make mpi', run a 'make clean all' before recompling (warning: here be dragons, be prepared to fight with mpi to get it working)
+
+
+Running
+---------------------
+All of the sampling parameters are kept in the file 'config.dat' and should be self explanatory 
+(if you do not understand the multinest parameters, the defaults are fine for most purposes). 
+
+Detectors only need to be defined once in 'detectors.ini' and then you can refer to them by name in config.dat
+
+The code can then be ran by simply typing "./DarkSearch" std out will display the progress of the sampling. 
+
+Alternatively, using config.dat as a guide, you can create your own parameter file and pass it at runtime eg: "./DarkSearch config2.dat"
+
+If attempting to run with mpi, you need to type "mpirun -n [number of threads] ./DarkSearch", if it complains about shared libraries try
+specifying the full path to mpirun.
+
+The results can be analysed using the DS_results.nb notebook in mathematica
+
+
+Output files
+---------------------
+Output files are automatically generated named using the 'root' parameter specified in config.dat (default is "results/DS_")
+
+DS_sim.dat
+Contains columns of posterior probability, -2*log(likelihood) and then the sampling parameters: mass, cross section etc.
+
+The rest of the files are from multinest and are not needed, but you can find more information on them in the 
+multinest README.
+hi

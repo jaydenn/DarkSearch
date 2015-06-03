@@ -1,0 +1,3 @@
+double scalarRate(double Er, WIMPpars W, physicalParameters P, int i);
+double spinorRate(double Er, WIMPpars W, physicalParameters P, int i);
+double vectorRate(double Er, WIMPpars W, physicalParameters P, int i);
