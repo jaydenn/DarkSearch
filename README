@@ -2,38 +2,34 @@ Dark Search
 ---------------------
 June 2015
 
-This code contains functions for the calculation of direct detection rates with full 
-nuclear form factors (calculated by DMformfactor). It is designed to simulate a WIMP 
-signal and reconstruct WIMP model parameters from the simulated signal.
+This code contains functions for the calculation of direct detection rates with full nuclear form factors (calculated by DMformfactor). It is designed to simulate a WIMP signal and reconstruct WIMP model parameters from the simulated signal.
 
 
 Installation
 ---------------------
 requires:
 Multinest         
- - a nested sampling algorithm that evaluates posterior probabilities (requires lapack) 
+ - nested sampling algorithm for posterior sampling (requires lapack) 
  - https://ccpforge.cse.rl.ac.uk/gf/project/multinest/
 GNU Science Lib   
- - for probability functions, integration and random number generation.
+ - probability functions, integration and random number generation.
  - http://www.gnu.org/software/gsl/
 
 optional:
-open-mpi (or other mpi flavor) - if you would like to parallelize the sampling you need mpi
+openmpi - needed for parallelization of sampling 
 
 To build just type: 'make'  
 
 To build with mpi: 
 1. modify the makefile to use mpif90 and uncomment the extra mpi flags
 2. ensure Multinest was compiled with mpi support
-2. type 'make' (run a 'make clean' first if you previously built without mpi) 
+2. type 'make' (run 'make clean' first if previously built without mpi) 
 
+After installation it would be wise to add the files 'Makefile' and 'config.dat' to your .gitignore file, this will prevent them from being overwritten on future pulls from the server.
 
 config.dat
 ---------------------
-All of the running/sampling parameters are kept in the file 'config.dat' and should be self explanatory 
-(if you do not understand the multinest parameters, the defaults are fine for most purposes). Attention should be paid 
-to the number of live points, more live points will sample the parameter space better and so in general you should set it
-higher for a larger number of dimensions.
+All of the running/sampling parameters are kept in the file 'config.dat' and should be self explanatory (if you do not understand the multinest parameters, the defaults are fine for most purposes). Attention should be paid to the number of live points, more live points will sample the parameter space better and so in general you should set it higher for a larger number of dimensions.
 
 
 detectors.ini

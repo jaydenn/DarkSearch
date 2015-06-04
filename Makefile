@@ -1,5 +1,5 @@
-CC = mpif90
-FLAGS = -O3 -DMPI -DOMPI_SKIP_MPICXX
+CC = g++ #mpif90
+FLAGS = -O3 #-DMPI -DOMPI_SKIP_MPICXX
 NESTLIBDIR = ../MultiNest_v3.9
 
 LIBS = -L$(NESTLIBDIR) -lnest3 -llapack -lgsl -lgslcblas -lstdc++ -lgfortran -lm

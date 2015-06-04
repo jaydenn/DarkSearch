@@ -4,7 +4,7 @@
 //Multinest Sampling Parameters (0 off, 1 on)
 1                  // do mode separation?
 0                  // run in constant efficiency mode?
-8000               // number of live points
+2000               // number of live points
 1                  // need feedback to standard output (terminal)?
 0                  // resume from a previous job? (only available if asimov data being used)
 0.5                // set the required efficiency. 0.8 and 0.3 are recommended for parameter estimation & evidence evalutaion respectively.
