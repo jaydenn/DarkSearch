@@ -14,15 +14,16 @@ int SEED = 0;
 //Generates count number of random events, distributed according to dN/dE for parameters in cube, for detector det (0 or 1, corresponding to order in sampling.par), recoil energies [keV] are stored in MCdata
 void generateUnbinnedData(WIMPpars W, physicalParameters P, detector *det, int b)
 {
+
+    double predicted = intRate( det->ErL, det->ErU, W, *det, P) * det->exposure; 
+    double background= BgRate(*det, det->ErL, det->ErU) * det->exposure; 
+    
     const gsl_rng_type * T;
     gsl_rng * r;
     gsl_rng_env_setup();
     T=gsl_rng_default;
     r=gsl_rng_alloc(T);
     gsl_rng_set(r, (int)time(NULL) + SEED++);
-
-    double predicted = intRate( det->ErL, det->ErU, W, *det, P) * det->exposure; 
-    double background= BgRate(*det, det->ErL, det->ErU) * det->exposure; 
     
     int count = predicted+background;
     

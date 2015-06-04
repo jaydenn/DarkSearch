@@ -2,21 +2,30 @@ Dark Search
 ---------------------
 June 2015
 
-This code contains functions for the calculation of direct detection rates with full nuclear form factors (calculated by DMformfactor).
-It is designed to simulate a WIMP signal and reconstruct WIMP model parameters from the simulated signal.
+This code contains functions for the calculation of direct detection rates with full 
+nuclear form factors (calculated by DMformfactor). It is designed to simulate a WIMP 
+signal and reconstruct WIMP model parameters from the simulated signal.
 
 
 Installation
 ---------------------
 requires:
-Multinest         - a nested sampling algorithm that evaluates posterior probabilities (requires lapack) - https://ccpforge.cse.rl.ac.uk/gf/project/multinest/
-GNU Science Lib   - for probability functions, integration and random number generation.                 - http://www.gnu.org/software/gsl/
+Multinest         
+ - a nested sampling algorithm that evaluates posterior probabilities (requires lapack) 
+ - https://ccpforge.cse.rl.ac.uk/gf/project/multinest/
+GNU Science Lib   
+ - for probability functions, integration and random number generation.
+ - http://www.gnu.org/software/gsl/
 
 optional:
 open-mpi (or other mpi flavor) - if you would like to parallelize the sampling you need mpi
 
-To build simply type 'make'  
-To build with mpi type 'make mpi', run a 'make clean' first and ensure Multinest was compiled with mpi support.
+To build just type: 'make'  
+
+To build with mpi: 
+1. modify the makefile to use mpif90 and uncomment the extra mpi flags
+2. ensure Multinest was compiled with mpi support
+2. type 'make' (run a 'make clean' first if you previously built without mpi) 
 
 
 config.dat
@@ -38,7 +47,7 @@ The code can then be ran by simply typing "./DarkSearch" std out will display th
 
 Alternatively, using config.dat as a guide, you can create your own parameter file and pass it at runtime eg: "./DarkSearch config2.dat"
 
-If attempting to run with mpi, you need to type "mpirun -n [number of threads] ./DarkSearch", if it complains about shared libraries try
+If running with mpi, you need to type "mpirun -np [number of threads] ./DarkSearch", if it complains about shared libraries try
 specifying the full path to mpirun.
 
 The results can be analysed using the mathematica package 'crediblePlot.m' in the results folder.
