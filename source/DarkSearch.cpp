@@ -68,16 +68,16 @@ int main(int argc, char *argv[])
         #ifdef MPI
             MPI_Init(&argc, &argv);
             MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-	    if(myrank==0)
-	    {
-	        gsl_rng_env_setup();
-    		T=gsl_rng_default;
-	        r=gsl_rng_alloc(T);
-	        gsl_rng_set(r, (int)time(NULL));
-	        seed = (int) 60000*gsl_rng_uniform(r);		//would be nice to have more than 60,000 different experiments..
-	    }
-	    MPI_Bcast(&seed,1,MPI_INT,0,MPI_COMM_WORLD);
-	    MPI_Barrier(MPI_COMM_WORLD);
+	        if(myrank==0)
+	        {
+	            gsl_rng_env_setup();
+        		T=gsl_rng_default;
+	            r=gsl_rng_alloc(T);
+	            gsl_rng_set(r, (int)time(NULL));
+	            seed = (int) 60000*gsl_rng_uniform(r);		//would be nice to have more than 60,000 different experiments..
+	        }
+	        MPI_Bcast(&seed,1,MPI_INT,0,MPI_COMM_WORLD);
+	        MPI_Barrier(MPI_COMM_WORLD);
         #endif
 
     //Parameter reconstruction
