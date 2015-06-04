@@ -25,7 +25,10 @@ To build with mpi:
 2. ensure Multinest was compiled with mpi support
 2. type 'make' (run 'make clean' first if previously built without mpi) 
 
-After installation it would be wise to add the files 'Makefile' and 'config.dat' to your .gitignore file, this will prevent them from being overwritten on future pulls from the server.
+After installation it would be wise to type:
+"git update-index --assume-unchanged Makefile" and
+"git update-index --assume-unchanged config.dat"
+this will prevent these files from being overwritten on future pulls from the server.
 
 config.dat
 ---------------------
