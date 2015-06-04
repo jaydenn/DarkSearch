@@ -3,12 +3,11 @@
 //C includes
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <iomanip>
-#include <assert.h>
 #include <time.h>
 
 //GNU Science lib includes
@@ -31,8 +30,6 @@
     #include "mpi.h"
 #endif
 
-using namespace std;
-
 //set up random number generator for Monte Carlo simulation
   const gsl_rng_type * T;
   gsl_rng * r;
@@ -41,14 +38,3 @@ using namespace std;
 //void dumper(int &nSamples, int &nlive, int &nPar, double **physLive, double **posterior, double **paramConstr, double &maxLogLike, double &logZ, double &logZerr, void **pointer) {}
 void dumper(int &, int &, int &, double **, double **, double **, double &, double &, double &, double &, void **) {}
 
-void exclusionLimits(parameterList Pars, double CL, int mode);
-
-void discoveryPot(parameterList Pars, double sig, int mode);
-
-int twoDbin(char *filename, int x, int y, int nbin);           //2D binning of the output from multinest (marginalisation)
-
-int bin(double *data, int lenData, double min, double max); //return number of events between min and max
-
-int getSamplingPars(parameterList *pL, char *filename);
-
-void annualModulation(parameterList par);
