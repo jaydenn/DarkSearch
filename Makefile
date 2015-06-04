@@ -5,7 +5,7 @@ NESTLIBDIR = ../MultiNest_v3.9
 
 LIBS = -L$(NESTLIBDIR) -lnest3 -llapack -lgsl -lgslcblas -lstdc++ -lgfortran -lm
 INCLUDE = -I./source/include 
-OBJECTS = source/DarkSearch.o source/nuBackground.o source/detectorFunctions.o source/detectors.o source/directDet.o source/fileInput.o source/formfactorsSI.o source/monteCarlo.o source/likelihood.o source/isoRates.o
+OBJECTS = source/DarkSearch.o source/nuBackground.o source/detectorFunctions.o source/detectors.o source/directDet.o source/fileIO.o source/formfactorsSI.o source/monteCarlo.o source/likelihood.o source/isoRates.o
 
 default: DarkSearch
 

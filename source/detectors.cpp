@@ -50,11 +50,14 @@ int newDetector(detector *det, char *name, double exp, int ndet)
     }
     
     char temp[200];
-    fgets(temp,200,detsINI);
+    char *ret;
+    int err;
+    
+    ret = fgets(temp,200,detsINI);
     
     while(strcmp(temp,name)!=0)
     {
-        fscanf(detsINI,"%s",temp);
+        err = fscanf(detsINI,"%s",temp);
         
         if(feof(detsINI))
         {
@@ -69,29 +72,29 @@ int newDetector(detector *det, char *name, double exp, int ndet)
     
     while(temp[0]!='-')
     {
-        fscanf(detsINI,"%s",temp);
+        err = fscanf(detsINI,"%s",temp);
                      
         if(strcmp(temp,"AM")==0)  
-            fscanf(detsINI,"%lf",&(det->AM)); 
+            err=fscanf(detsINI,"%lf",&(det->AM)); 
         if(strcmp(temp,"Er")==0)  
-            fscanf(detsINI,"%lf-%lf",&(det->ErL),&(det->ErU)); 
+            err=fscanf(detsINI,"%lf-%lf",&(det->ErL),&(det->ErU)); 
         if(strcmp(temp,"bg")==0)  
-            fscanf(detsINI,"%d",&(det->bg));
+            err=fscanf(detsINI,"%d",&(det->bg));
         if(strcmp(temp,"eff")==0) 
-            fscanf(detsINI,"%d",&(det->eff));         
+            err=fscanf(detsINI,"%d",&(det->eff));         
         if(strcmp(temp,"res")==0) 
-            fscanf(detsINI,"%d",&(det->res));
+            err=fscanf(detsINI,"%d",&(det->res));
     }
     
-    fgets(temp,200,detsINI);
-    fgets(temp,200,detsINI);
-    fgets(temp,200,detsINI);
-    fgets(temp,200,detsINI);
+    ret = fgets(temp,200,detsINI);
+    ret = fgets(temp,200,detsINI);
+    ret = fgets(temp,200,detsINI);
+    ret = fgets(temp,200,detsINI);
     while(!feof(detsINI) && temp[0]!='_')
     {       
         sscanf(temp,"%d %d %lf",&(det->isoZ[nIso]),&(det->isoA[nIso]),&(det->isoFrac[nIso])); 
         nIso++;
-        fgets(temp,200,detsINI);         
+        ret = fgets(temp,200,detsINI);         
     }
     det->nIso = nIso;
              

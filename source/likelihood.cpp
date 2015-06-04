@@ -58,6 +58,8 @@ void scaleParams(double *Cube, physicalParameters P, WIMPpars *W)
     W->vSp  = scale(&Cube[(int)P.vSp[3]],P.vSp[0],P.vSp[1],(int)P.vSp[2]);
     W->vEp  = scale(&Cube[(int)P.vEp[3]],P.vEp[0],P.vEp[1],(int)P.vEp[2]);
     
+    W->spin = P.spin;
+    
 }
 
 //likelihood function for binned data
@@ -132,7 +134,6 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     //WIMP pars for this point in the parameter space
     WIMPpars Wcube;
 	scaleParams( Cube, pL.p, &Wcube);
-	Wcube.spin=0.5;
 	
     if(pL.binlessL==1)
     {

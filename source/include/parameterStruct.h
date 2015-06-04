@@ -4,7 +4,7 @@
 
 struct physicalParameters {
     //each parameter array contains:
-    // {min, max, prior, parIndex};Lets hope some pick up on our formalism ;)
+    // {min, max, prior, parIndex};
     double Mx[4];
     
     double rho[4];

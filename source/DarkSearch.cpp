@@ -15,8 +15,6 @@
 int main(int argc, char *argv[])
 {	
 
-    parameterList pL;
-	
     char filename[100];
     switch(argc)
     {
@@ -32,40 +30,39 @@ int main(int argc, char *argv[])
         }
         default:
         {
-            cout << "Usage: ./DarkSearch {optional: parameter file name}";
+            std::cout << "Usage: ./DarkSearch {optional: parameter file name}";
             return 0;
         }
     }		  
 	 
         //Setup arrays and parameters
-        char temp[1000];                                     //temporary buffer array
-        int myrank = 0;									    //MPI process rank
+        parameterList pL;
+        char temp[1000];                                   //temporary buffer array
+        int myrank = 0;						   			   //MPI process rank
          
-        //Setup a pointer for passing around of parameters to Multinest
-        void *pointer; 
+        void *pointer;                                     //a pointer for passing parameterList to Multinest
         pointer = (void *) &pL;
      
         //get sampling parameters from file
         int mode = getSamplingPars( &pL, filename); 
-        if ( mode < 0 ) return 0;
-  
-        printf("Using %d detector(s):\n",pL.ndet);
-        for(int i=0; i<pL.ndet; i++)
-            printf(" %s - %.2f t.y\n",pL.detectors[i].name,pL.detectors[i].exposure);
-       
+        if ( mode < 0 ) 
+        {
+            std::cout << "Problem with config file, aborting" << std::endl;
+            return 0;
+        }
+        
         // set some MultiNest sampling parameters
-        int pWrap[] = {0,0,0,0};						          // which parameters to have periodic boundary conditions?
+        int pWrap[] = {0,0,0,0,0,0,0,0,0,0,0,0};              // which parameters to have periodic boundary conditions?
         int seed = -1;			   					          // random no. generator seed, if < 0 then take the seed from system clock
       
-        int ndims = pL.p.nPar;       // any combination of mass, sigmaSI, sigmaSIvec, sigmaSD, delta, fn/fp, bn/bp, an/bp and rho_DM, v0, vesc 
-        int npar = 21;                // npar can be greater than ndim if you want to get other values from the loglike function output to file
+        int ndims = pL.p.nPar;                                // any combination of mass, sigmaSI, sigmaSIvec, sigmaSD, delta, fn/fp, bn/bp, an/bp and rho_DM, v0, vesc 
+        int npar = 21;                                        // npar can be greater than ndim if you want to get other values from the loglike function output to file
         double logZero = -DBL_MAX;							  // points with loglike < logZero will be ignored by MultiNest
         int initMPI = 0;								      // initialize MPI routines?, relevant only if compiling with MPI
-                                                              // set it to 0 if you want your main program to handle MPI initialization
         int outfile = 1;								      // write output files?
-        int updateInt = 100000;								  // update interval (for calling dumper, which isn't used here)
+        int updateInt = 1000000;							  // update interval (for calling dumper, which isn't used here)
         
-     
+        int err = 0;                                          //error flag
     
     //Parameter reconstruction
     if(mode == 0)
@@ -82,68 +79,47 @@ int main(int argc, char *argv[])
         pL.w.v0  = pL.p.v0[0];
         pL.w.vesc= pL.p.vesc[0];
         pL.w.vSp = pL.p.vSp[0];
-        pL.w.vEp = pL.p.vEp[0];   
-        
-        //simulate with incorrect velocity dist.
-        //	int temp_int = pL.p.velDist;
-        //	pL.p.velDist = ?;        
+        pL.w.vEp = pL.p.vEp[0];      
        
-        if( (int)pL.sampling[4] == 1)    	//if resuming from previous job
+        //if resuming from previous job
+        if( (int)pL.sampling[4] == 1)    	
         { 
             if (pL.w.asimov==1)
             {
                 pL.w.asimov=0; pL.sampling[4]=0;
-                cout << "cannot resume random simulation, switching to Asimov" << endl;                   
+                std::cout << "cannot resume random simulation, switching to Asimov" << std::endl;                   
             }
             else
-               cout << "resuming from previous job\n" << endl; 
+                std::cout << "resuming from previous job\n" << std::endl; 
         } 
        
         //Generate sim data for each detector
+        std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
         for(int i=0; i<pL.ndet; i++)
         {                
   	
-                generateBinnedData( pL.w, pL.p, &(pL.detectors[i]), 1);
-                            
-                if(myrank==0) { printf("%d. Simulating %d random events of a m=%3.0fGeV WIMP in detector %s\n", i+1, (int)pL.detectors[i].nEvents, pL.w.Mx, pL.detectors[i].name);}
+            generateBinnedData( pL.w, pL.p, &(pL.detectors[i]), 1);
+            std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
            
         }
        
         //run multinest sampling
-        if(myrank==0) printf("Starting MultiNest sampling...\n");
-        //  nestRun(               mmodal,                 ceff,               nlive,             tol,             efr,ndims, nPar,nCdims,  maxModes,    updInt,           nullZ,      root, seed, pWrap,              feedback,                resume,       outfile,       initMPI, logZero,   loglike, dumper, context)
+        if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
+        //  nestRun(               mmodal,                ceff,              nlive,            tol,            efr,ndims, nPar,nCdims,  maxModes,    updInt,          nullZ,     root, seed, pWrap,             feedback,                resume,       outfile,        initMPI, logZero,   loglike, dumper, context)
         nested::run((bool)pL.sampling[0],(bool)pL.sampling[1],(int)pL.sampling[2], pL.sampling[6], pL.sampling[5],ndims, npar, ndims,       100, updateInt, pL.sampling[7],  pL.root, seed, pWrap, (bool)pL.sampling[3], (bool)pL.sampling[4], (bool)outfile, (bool)initMPI, logZero, LogLikedN, dumper, pointer);
         
         #ifdef MPI
             MPI_Finalize();
         #endif
         
-        //prepend physical parameters to file
+        //write parameters to file
         if(myrank==0)
-        {
-
-            char prepend[3000];
-            char simType[] = "Monte Carlo";
-            if(!pL.w.asimov) sprintf(simType, "%s", "Asimov");
-            sprintf(prepend, "echo -e //%s Simulation\"\\n\"//WIMP pars: Mx = %2.1f \"\\n\"//Detectors:\"\\n\"", simType, pL.w.Mx);
-
-            //detector parameters
-            for(int i=0; i<pL.ndet; i++)
-            {
-                sprintf(prepend,"%s// %s: exp. = %4.1f kg*days, Atomic mass = %3.2f, %d events \"\\n\"",prepend,pL.detectors[i].name,pL.detectors[i].exposure,pL.detectors[i].AM, (int)pL.detectors[i].nEvents);
-            }
-            
-            //parameter headings
-            sprintf(prepend,"%s\"    P                           -2Log(L)                    %s                          %s                         %s                          %s                          %s                        %s                         %s                        %s                        %s                        %s                         %s\"",prepend,pL.p.parNames[0],pL.p.parNames[1],pL.p.parNames[2],pL.p.parNames[3],pL.p.parNames[4],pL.p.parNames[5],pL.p.parNames[6],pL.p.parNames[7],pL.p.parNames[8],pL.p.parNames[9],pL.p.parNames[10]);
-            
-            //execute via system call
-            sprintf(temp,"%s | cat - %s.txt > %ssim.dat; rm %s.txt", prepend,pL.root,pL.root,pL.root);
-            system(temp);
-
-            cout << "done.\n";
-        }
-
-        return 0;
+            err = writeOutFile(mode, pL);
+        
+        if(err)
+            cout << "problem writing output file" << endl;
+        
+        return 1;
     }
     
     //Recoil spectrum
@@ -190,12 +166,12 @@ int main(int argc, char *argv[])
             }
             fclose(output);
         }
-        return 0;
+        return 1;
     }
     
     if( mode!=0 && mode!=1 )
     {
-            cout << "error with mode parameter, check parameter file" << endl;
+            std::cout << "error with mode parameter, check parameter file" << std::endl;
             return 0;
     }
     
