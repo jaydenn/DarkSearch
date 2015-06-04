@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         // set some MultiNest sampling parameters
         int pWrap[] = {0,0,0,0,0,0,0,0,0,0,0,0};              // which parameters to have periodic boundary conditions?
         int seed = -1;			   					          // random no. generator seed, if < 0 then take the seed from system clock
-      
+        
         int ndims = pL.p.nPar;                                // any combination of mass, sigmaSI, sigmaSIvec, sigmaSD, delta, fn/fp, bn/bp, an/bp and rho_DM, v0, vesc 
         int npar = 21;                                        // npar can be greater than ndim if you want to get other values from the loglike function output to file
         double logZero = -DBL_MAX;							  // points with loglike < logZero will be ignored by MultiNest
@@ -63,16 +63,26 @@ int main(int argc, char *argv[])
         int updateInt = 1000000;							  // update interval (for calling dumper, which isn't used here)
         
         int err = 0;                                          //error flag
-    
-    //Parameter reconstruction
-    if(mode == 0)
-    {	
-        
+
         //Initialise MPI
         #ifdef MPI
             MPI_Init(&argc, &argv);
             MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	    if(myrank==0)
+	    {
+	        gsl_rng_env_setup();
+    		T=gsl_rng_default;
+	        r=gsl_rng_alloc(T);
+	        gsl_rng_set(r, (int)time(NULL));
+	        seed = (int) 60000*gsl_rng_uniform(r);		//would be nice to have more than 60,000 different experiments..
+	    }
+	    MPI_Bcast(&seed,1,MPI_INT,0,MPI_COMM_WORLD);
+	    MPI_Barrier(MPI_COMM_WORLD);
         #endif
+
+    //Parameter reconstruction
+    if(mode == 0)
+    {	
         
         //use maximum likelihood values for astro params in simulation of events
         pL.w.rho = pL.p.rho[0];
@@ -94,14 +104,15 @@ int main(int argc, char *argv[])
         } 
        
         //Generate sim data for each detector
-        std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
-        for(int i=0; i<pL.ndet; i++)
+	if(myrank==0)
+            std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
+	for(int i=0; i<pL.ndet; i++)
         {                
-  	
-            generateBinnedData( pL.w, pL.p, &(pL.detectors[i]), 1);
-            std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
-           
-        }
+       	    generateBinnedData( pL.w, pL.p, &(pL.detectors[i]), 1);
+	    if(myrank==0)
+	            std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
+      	}   
+
        
         //run multinest sampling
         if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
@@ -119,7 +130,7 @@ int main(int argc, char *argv[])
         if(err)
             cout << "problem writing output file" << endl;
         
-        return 1;
+        return 0;
     }
     
     //Recoil spectrum
