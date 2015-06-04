@@ -24,45 +24,46 @@ int getSamplingPars(parameterList *pL, char *filename)
     }
   
     int mode;
+    char *ret;
     char temp[400];
     char root[50];
-    fgets(temp,200,input);
+    ret = fgets(temp,200,input);
 
     //Mode switch
-    fgets(temp,200,input);
+    ret = fgets(temp,200,input);
     sscanf(temp,"%d",&mode);
     
     // root for output files
-    fgets(temp,200,input);
+    ret = fgets(temp,200,input);
     sscanf(temp,"%s %*s",root);
     sprintf(pL->root, "%s" , root);		 
     
     //Multinest sampling parameters
-    fgets(temp,200,input);
+    ret = fgets(temp,200,input);
     for (int i=0;i<8;i++)
     {
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         sscanf(temp,"%lf",&(pL->sampling[i]));
     }
   
     //use a binless likelihood
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         sscanf(temp,"%d",&(pL->binlessL));
     //include neutrino background
-        fgets(temp,200,input);
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         sscanf(temp,"%d",&(pL->p.nuBg));
     
     //search ranges and nuisance parameters
     char prior[10];
-    fgets(temp,200,input);
-    fgets(temp,200,input);
+    ret = fgets(temp,200,input);
+    ret = fgets(temp,200,input);
     int N = pL->p.nPar; 
     int i = pL->p.nPar; 
     int ind = 1;
     
     //this mess of code makes sure that each parameter can be read in any order and multinest will only loop over the ones with a prior, the others will still be output to file
-    fgets(temp,200,input);
+    ret = fgets(temp,200,input);
     
     while(temp[0]!='/')
     {
@@ -90,7 +91,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             else if(strcmp(prior,"none")==0) { pL->p.coeff[ind][2]=3; pL->p.nPar--; i++; pL->p.coeff[ind][3]= (pL->p.nPar);}
             else {printf("invalid prior type for V%d\n",ind); assert(0);}
             sprintf(pL->p.parNames[(int)pL->p.coeff[ind][3]],"C%d",ind);
-            fgets(temp,200,input);
+            ret = fgets(temp,200,input);
             ind++;
         }
         
@@ -165,41 +166,94 @@ int getSamplingPars(parameterList *pL, char *filename)
             sprintf(pL->p.parNames[(int)pL->p.vEp[3]],"vEp");
         }
  
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
     }
         
     //Detector setup
     char name[20];
     double exp;
-    fgets(temp,200,input);
+    ret = fgets(temp,200,input);
     
     while(temp[0]=='#' && pL->ndet<10)
     {   
         sscanf(temp,"%s %lf", name, &exp);
         newDetector( &(pL->detectors[pL->ndet]), name, exp, pL->ndet);
         pL->ndet++;
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
     }    
     
     if (pL->ndet==10) printf("Maximum 10 detectors allowed\n");  
     
     //WIMP parameters
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         sscanf(temp,"%*s %lf",&(pL->w.Mx));
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         sscanf(temp,"%*s %lf",&(pL->w.spin));
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         ind=1;
         while(temp[0]=='C')    
         {    
             sscanf(temp,"%*s %lf",&(pL->w.coeff[ind]));
-            fgets(temp,200,input);
+            ret = fgets(temp,200,input);
             ind++;
         }
-        fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         sscanf(temp,"%d",&(pL->w.asimov));
     
     fclose(input); 
 
     return mode;
+}
+
+int writeOutFile(int mode, parameterList pL)
+{
+    
+    char filename[100];
+    
+    std::ofstream outfile;
+    sprintf(filename,"%ssim.dat",pL.root);
+    outfile.open(filename,ios::out);
+    if(outfile==NULL)
+    {
+        std::cout << "output file cannot be created" << std::endl;
+        return 1;
+    }
+    if(pL.w.asimov) 
+        outfile << "// Monte-carlo simulation" << std::endl;            
+    else
+        outfile << "// Asimov simulation" << std::endl;
+
+    //print WIMP parameters
+    outfile << "// WIMP pars: spin-" << pL.w.spin << ", Mx = " << pL.w.Mx << ", C1 = " << pL.w.coeff[1] <<", C2 = " << pL.w.coeff[2] << std::endl;
+
+    //print detector parameters
+    outfile << "// Detectors used:" << std::endl;
+    for(int i=0; i<pL.ndet; i++)
+        outfile << "//    " << pL.detectors[i].name << " - " << pL.detectors[i].exposure << " t.y" << ", nEvents = " << pL.detectors[i].nEvents << std::endl;
+
+    //print parameter headings
+    outfile << "//  P                           -2Log(L)                    ";
+    for(int i=0; i<pL.p.nPar; i++)
+        outfile  <<  pL.p.parNames[i] << "                          ";
+
+    outfile << std::endl;
+
+    //copy over the Multinest output file
+    std::ifstream infile;
+    sprintf(filename,"%s.txt",pL.root);
+    infile.open(filename,ios::in);
+    if(infile==NULL)
+    {
+        std::cout << "couldn't open Multinest output file" << std::endl;
+        return 0;
+    }
+    
+    std::string line;
+    while(std::getline(infile,line))
+        outfile << line << std::endl;
+        
+    outfile.close();
+    infile.close();
+    
+    return 0;
 }
