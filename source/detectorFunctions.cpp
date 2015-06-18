@@ -59,3 +59,4 @@ double detRes(double Er, int type)
             return NAN; 
     }
 }
+
