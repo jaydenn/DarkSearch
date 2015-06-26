@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "DEIntegrator.h"
 #include "detectorFunctions.h"
 #ifndef PARAMETERSTRUCT_H
@@ -11,44 +10,50 @@
 #endif
 #include "nuBackground.h"
 
-//returns total # background events per kg/day for bg type, with recoil  Er_min < Er < Er_max
-double BgRate(detector det, double Er_min, double Er_max)  						  
-{
-    if(Er_min < det.ErL)
-    { printf("Warning, E_min=%lf < ErL\n",Er_min);}
-    
+//returns integrated total # background events per tonne/year for bg type, with recoil  Er_min < Er < Er_max
+double intBgRate(detector det, double Er_min, double Er_max)  						  
+{   
+   // cout << Er_min << " - " << Er_max << " = " << det.exposure*gsl_spline_eval_integ(det.background, Er_min, Er_max, det.accel) << endl; 
     return gsl_spline_eval_integ(det.background, Er_min, Er_max, det.accel);
 }
 
-//only need to calculate background once, store in a table for interpolation, stored as N/kg/day/keV
+double diffBgRate(detector det, double Er)
+{
+    return gsl_spline_eval(det.background, Er, det.accel);
+}
+
+//only need to calculate background once, store in a table for interpolation, stored as N/t/year/keV
 int InitializeBackground(detector *det)
 {
     //get values of bg at relevant energies
-    double Er[220];
-    double bg[220];
-    for(int i=0; i<220; i++)
-    { 
-        Er[i] = det->ErL + (i-2)*(det->ErU-det->ErL)/200;
-        bg[i] = dNnudE(*det, Er[i]) + detBackground(Er[i], det->bg);
+    double Er[500];
+    double Bg[500];
+    for(int i=0; i<500; i++)
+    {
+        Er[i] = det->ErL + (double)i*(det->ErU-det->ErL)/499;
+        Bg[i] = detBackground(Er[i], det->bg) * 1000.0 * 365.24;
+
+        if(det->nuBg)
+            Bg[i]+=dNnudE(*det, Er[i]); //adds the coherent neutrino background if nuBg flag is on
     }
-    
+
     //create gsl interpolation object
-    return gsl_spline_init(det->background,Er,bg,220);
-    
+    return gsl_spline_init(det->background,Er,Bg,500);
+
 }
 
 int newDetector(detector *det, char *name, double exp, int ndet)
-{   
+{
     det->exposure = exp;
-    
+
     FILE *detsINI;
     detsINI = fopen("detectors.ini","r");
     if(detsINI==NULL)
     {
         printf("unable to open detectors.ini\n");
-        return -1;	
+        return 1;
     }
-    
+
     char temp[200];
     char *ret;
     int err;
@@ -63,7 +68,7 @@ int newDetector(detector *det, char *name, double exp, int ndet)
         {
             printf("detector '%s' not found\n",name); 
             fclose(detsINI);
-            return -1;
+            return 1;
         }
     }
     
@@ -85,7 +90,7 @@ int newDetector(detector *det, char *name, double exp, int ndet)
         if(strcmp(temp,"res")==0) 
             err=fscanf(detsINI,"%d",&(det->res));
     }
-    
+
     ret = fgets(temp,200,detsINI);
     ret = fgets(temp,200,detsINI);
     ret = fgets(temp,200,detsINI);
@@ -101,8 +106,11 @@ int newDetector(detector *det, char *name, double exp, int ndet)
     fclose(detsINI);
     
     if(InitializeBackground(det))
-    { printf("problem initializing background of detector %d\n",ndet); assert(0);}
-    
+    { 
+        std::cout << "problem initializing background of detector " << name << std::endl;
+        return 1;
+    }
+
     return 0;
     
 }

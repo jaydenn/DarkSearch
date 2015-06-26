@@ -1,5 +1,6 @@
 
 int getSamplingPars(parameterList *pL, char *filename);
 
-int writeOutFile(int mode, parameterList pL)
-;
+int writeSamplingOutput(parameterList pL);
+
+int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, double *background, int sizeData);

@@ -2,45 +2,25 @@
 #include "detectorStruct.h"
 #define PARAMETERSTRUCT_H
 
-struct physicalParameters {
+struct reconstructionParameters {
     //each parameter array contains:
     // {min, max, prior, parIndex};
     double Mx[4];
-    
+    double spin;
+    double coeffn[16][4];
+    double coeffp[16][4];
     double rho[4];
     double v0[4];
     double vesc[4];
     double vSp[4];
     double vEp[4];
-    double coeff[16][4];
-    double spin;
+    char parNames[36][5];
+    int isv;
     int nPar;
-    char parNames[11][5];
-    int nuBg;
-   
-    physicalParameters()
-    {
-        nPar = 21;
-        for(int i=0;i<4;i++)
-        {
-            Mx[i]=0;
-            
-            rho[i]=0;
-            v0[i]=0;
-            vesc[i]=0;
-            vSp[i]=0;
-            vEp[i]=0;            
-        }
-        //for(int i=0;i<11;i++)
-        //    parNames[i]=T;
-        
-        nPar=0;
-        nuBg=0;
-    }
     
-    void printPhysPars()
+    void printReconstPars()
     {
-        printf("%d physical parameters:\n",nPar);
+        printf("%d reconstruction parameters:\n",nPar);
         printf("   %.0f < Mx  < %.0f  prior: %.0f, index: %.0f\n",Mx[0],Mx[1],Mx[2],Mx[3]);
         printf("   rho = %.2f +\\- %.2f  prior: %.0f, index: %.0f\n",rho[0],rho[1],rho[2],rho[3]);        
         printf("   v0  = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",v0[0]*3e5,v0[1]*3e5,v0[2],v0[3]);
@@ -55,7 +35,8 @@ struct physicalParameters {
 struct WIMPpars {
     double Mx;
     double spin; 
-    double coeff[16];
+    double coeffp[16];
+    double coeffn[16];
     double rho;
     double v0;
     double vesc;
@@ -69,21 +50,17 @@ struct WIMPpars {
         printf("   Mx  = %.0f\n",Mx);
         printf("   spin= %.1f\n",spin);
         printf("   rho = %.2f\n",rho);        
-        printf("   v0  = %.0f\n",v0);
-        printf("   vesc= %.0f\n",vesc);
-        printf("   vSp= %.0f\n",vSp);
-        printf("   vEp= %.0f\n",vEp);
+        printf("   v0  = %E\n",v0);
+        printf("   vesc= %E\n",vesc);
+        printf("   vSp= %E\n",vSp);
+        printf("   vEp= %E\n",vEp);
         printf("   asmv= %d\n",asimov);
         for(int i=1;i<16;i++)
         {
-            printf("    c%d=%lf\n",i,coeff[i]);
+            printf("    c%d=%E   %E\n",i,coeffn[i],coeffp[i]);
         }
     }
     
-    WIMPpars()
-    {
-        rho=0; v0=0; vesc=0; vSp=0; vEp=0;
-    }
 };
 
 struct parameterList {
@@ -92,9 +69,9 @@ struct parameterList {
     int binlessL;
     int ndet;
     
-    physicalParameters p;
+    reconstructionParameters p;
     WIMPpars w;
-    detector *detectors;
+    detector detectors[10];
     
     void printPars()
     {
@@ -110,21 +87,15 @@ struct parameterList {
         printf("   Ztol       %.2E\n",sampling[7]);
                
         w.printWIMPpars();
-        p.printPhysPars();
+        p.printReconstPars();
         
         printf("Detectors:");
         for(int i=0;i<ndet;i++)
-        {    printf("%d.",i);
+        {    
+            printf("%d.",i);
             detectors[i].printDetSpecs();
         }    
     }
-    
-    parameterList()
-    {
-        ndet=0;
-        p.nPar=21;
-        detectors = new detector[10];   
-    }
-    
+        
 };
     

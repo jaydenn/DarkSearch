@@ -6,8 +6,8 @@
 #include "detectors.h"
 #include "isoRates.h"
 
-//returns direct detection rate /t/year/keV evaluated at recoil Er
-double diffRate(double Er, WIMPpars W, detector D, physicalParameters P)						 
+//returns direct detection rate /t/year/keV evaluated at recoil Er without smearing for detector resolution
+double unsmearedDiffWIMPrate(double Er, WIMPpars W, detector D, reconstructionParameters P)						 
 {
 
     //contributions for each isotope
@@ -16,7 +16,7 @@ double diffRate(double Er, WIMPpars W, detector D, physicalParameters P)
     {
         totRate += D.isoFrac[i] * isoRate(Er, W, P, D.isoA[i], D.isoZ[i]);              
     }
-   
+
     return totRate * detEff(Er,D.eff);
 
 }
@@ -27,14 +27,14 @@ public:
     double E;
     WIMPpars W;
     detector D;
-    physicalParameters P;
+    reconstructionParameters P;
     double operator()(double Er) const
     {
-        return diffRate( Er, W, D, P) * 1/(sqrt(2*M_PI)*detRes(E,D.res)) * exp( -pow(E-Er,2)/(2*pow(detRes(E,D.res),2)) );
+        return unsmearedDiffWIMPrate( Er, W, D, P) * 1/(sqrt(2*M_PI)*detRes(E,D.res)) * exp( -pow(E-Er,2)/(2*pow(detRes(E,D.res),2)) );
     }
 };
 
-double smearedDiffRate(double Er, WIMPpars W, detector D, physicalParameters P) 
+double smearedDiffWIMPrate(double Er, WIMPpars W, detector D, reconstructionParameters P) 
 {
     convolveIntegral conInt;   //create instance for recoil energy integration
     conInt.W = W;              //set the integral parameters
@@ -42,54 +42,39 @@ double smearedDiffRate(double Er, WIMPpars W, detector D, physicalParameters P)
     conInt.P = P;
     conInt.E = Er;
     return DEIntegrator<convolveIntegral>::Integrate(conInt,0,100,1e-5);
-  
 }
 
-
-class smearedErIntegral
+//returns direct detection rate /t/year/keV evaluated at recoil Er 
+double diffWIMPrate(double Er, WIMPpars W, detector D, reconstructionParameters P)						 
 {
-public:
-    WIMPpars W;
-    detector D;
-    physicalParameters P;
-    double operator()(double Er) const
-    {
-        return smearedDiffRate( Er, W, D, P);
-    }
-};
+    if(detRes(Er,D.res) > 1e-10)                    //To smear, or not to smear?
+        return smearedDiffWIMPrate(Er, W, D, P);
+    else
+        return unsmearedDiffWIMPrate(Er, W, D, P);
+}
 
 class ErIntegral
 {
 public:
     WIMPpars W;
     detector D;
-    physicalParameters P;
+    reconstructionParameters P;
     double operator()(double Er) const
     {
-        return diffRate( Er, W, D, P);
+        return diffWIMPrate( Er, W, D, P);
     }
 };
 
 //returns total integrated event rate per tonne/year in detector with recoil Er_min < Er < Er_max
-double intRate(double Er_min, double Er_max, WIMPpars W, detector D, physicalParameters P)						  
+double intWIMPrate(double Er_min, double Er_max, WIMPpars W, detector D, reconstructionParameters P)						  
 {
-    
-    /*if(D.res > 10)                    //To smear, or not to smear?
-    {
-        smearedErIntegral sErInt;      //create instance for smeared recoil energy integration
-        sErInt.W = W;
-        sErInt.D = D;
-        sErInt.P = P;
 
-        return DEIntegrator<smearedErIntegral>::Integrate(sErInt,Er_min,Er_max,1e-4);
-    }
-    else
-    {*/
-        ErIntegral erInt; 		       //create instance for recoil energy integration
-        erInt.W = W;
-        erInt.D = D;
-        erInt.P = P;
-        
-        return DEIntegrator<ErIntegral>::Integrate(erInt,Er_min,Er_max,1e-4);      
-    //}
+    ErIntegral erInt; 		       //create instance for recoil energy integration
+    erInt.W = W;
+    erInt.D = D;
+    erInt.P = P;
+
+    return DEIntegrator<ErIntegral>::Integrate(erInt,Er_min,Er_max,1e-4);
+    
 }
+

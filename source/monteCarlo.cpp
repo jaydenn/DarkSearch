@@ -11,73 +11,94 @@
 
 int SEED = 0;
 
-//Generates count number of random events, distributed according to dN/dE for parameters in cube, for detector det (0 or 1, corresponding to order in sampling.par), recoil energies [keV] are stored in MCdata
-void generateUnbinnedData(WIMPpars W, physicalParameters P, detector *det, int b)
+//Generates random number of randomly distributed according to dN/dE for parameters in cube, for detector det (0 or 1, corresponding to order in sampling.par), recoil energies [keV] are stored in MCdata
+int generateUnbinnedData(WIMPpars W, reconstructionParameters P, detector *det, int b, int simSeed)
 {
 
-    double predicted = intRate( det->ErL, det->ErU, W, *det, P) * det->exposure; 
-    double background= BgRate(*det, det->ErL, det->ErU) * det->exposure; 
-    
+    double signal = intWIMPrate( det->ErL, det->ErU, W, *det, P) * det->exposure; 
+    double background= b*intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
+     
     const gsl_rng_type * T;
     gsl_rng * r;
     gsl_rng_env_setup();
     T=gsl_rng_default;
     r=gsl_rng_alloc(T);
-    gsl_rng_set(r, (int)time(NULL) + SEED++);
+    gsl_rng_set(r, simSeed + SEED++);
     
-    int count = predicted+background;
+    det->nEvents = gsl_ran_poisson(r,signal+background);
     
-    det->unbinnedData = new double[count];
+    det->unbinnedData = new double[(int)det->nEvents];
     
-    double norm = diffRate( det->ErL, W, *det, P);
+    double norm = diffWIMPrate( det->ErL, W, *det, P) + b*diffBgRate(*det,det->ErL);
     int i = 0;
     double Er,y;
-    while ( i < count)
+    while ( i < det->nEvents)
     {
         Er = gsl_rng_uniform(r)*(det->ErU-det->ErL) + det->ErL;
         y = gsl_rng_uniform(r);
-        if( diffRate( Er, W, *det, P)/norm  > y )
+        if( (diffWIMPrate( det->ErL, W, *det, P) + b*diffBgRate(*det,det->ErL))/norm  > y )
         {
             det->unbinnedData[i] = Er;
             i++;
         }
     }
+    
+    return 0;
 }
 
-void generateBinnedData(WIMPpars W, physicalParameters P, detector *det, int b)
+int generateBinnedData(WIMPpars W, reconstructionParameters P, detector *det, int b, int simSeed)
 {
-    double predicted, background; 
+
     double Er_min, Er_max;
     const gsl_rng_type * T;
     gsl_rng * r;
     gsl_rng_env_setup();
     T=gsl_rng_default;
     r=gsl_rng_alloc(T);
-    gsl_rng_set(r, (int)time(NULL)+ SEED++);
+    gsl_rng_set(r, simSeed + SEED++);
     
-    predicted = (intRate( det->ErL, det->ErU, W, *det, P) + BgRate(*det, det->ErL, det->ErU)) * det->exposure; 
+    //total signal and background, for setting bin size
+    double signal = intWIMPrate( det->ErL, det->ErU, W, *det, P) * det->exposure;
+    double background = b * intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
 
-    det->nbins = floor( sqrt(predicted)/2 );  
+    //somewhat arbitrary choice of number of bins.. seems to work for exponential data
+    det->nbins = floor( sqrt(signal+background) )+2;
+
     if(det->nbins == 0)
         det->nbins = 1;
     det->binW = ( det->ErU - det->ErL ) / ( (double) det->nbins);
     
-    det->binnedData = new double[det->nbins];
+    try
+    {
+        det->binnedData = new double[det->nbins];
+    }
+    catch (std::bad_alloc& ba)
+    {
+      std::cerr << "bad_alloc caught: " << ba.what() << std::endl << "you requested: " << det->nbins << " doubles" <<std::endl;
+      return 1;
+    }
+  
     for(int i=0; i<det->nbins; i++)
     {
         Er_min = (double)i*det->binW+det->ErL;
         Er_max = (double)(i+1)*det->binW+det->ErL;
          
-        background = b * BgRate(*det, Er_min, Er_max) * det->exposure;
-        predicted = intRate( Er_min, Er_max, W, *det, P) * det->exposure; 
+        background = b * intBgRate(*det, Er_min, Er_max) * det->exposure;
+        signal = intWIMPrate( Er_min, Er_max, W, *det, P) * det->exposure; 
         
         if( W.asimov == 1) 
-            det->binnedData[i] = gsl_ran_poisson(r,predicted+background);
+            det->binnedData[i] = gsl_ran_poisson(r,signal+background);
         else
-            det->binnedData[i] = predicted + background;            
+            det->binnedData[i] = signal + background;            
         
         det->nEvents += det->binnedData[i];
     }
+    
+    //don't loop over empty bins, it seems to skew the likelihood function if you do 
+    while(det->binnedData[det->nbins -1]<1)
+        det->nbins--;
+    
+    return 0;
      
 }
 

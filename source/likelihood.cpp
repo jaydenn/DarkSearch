@@ -45,12 +45,19 @@ double scale(double *ranPar, double x, double y, int prior)
     return *ranPar;
 }
 
-void scaleParams(double *Cube, physicalParameters P, WIMPpars *W)
+void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
 {
     
-	W->Mx   = scale(&Cube[(int)P.Mx[3]],  P.Mx[0],  P.Mx[1],  (int)P.Mx[2]);	
+	W->Mx   = scale(&Cube[(int)P.Mx[3]],  P.Mx[0],  P.Mx[1],  (int)P.Mx[2]);
+		
     for(int i=1;i<16;i++)
-        W->coeff[i] = scale(&Cube[(int)P.coeff[i][3]], P.coeff[i][0], P.coeff[i][1], (int)P.coeff[i][2]);
+    {
+        W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
+        if(P.isv)
+            W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]], P.coeffp[i][0], P.coeffp[i][1], (int)P.coeffp[i][2]);
+        else
+            W->coeffp[i] = W->coeffn[i];
+    }
        
     W->rho  = scale(&Cube[(int)P.rho[3]], P.rho[0], P.rho[1], (int)P.rho[2]);
     W->v0   = scale(&Cube[(int)P.v0[3]],  P.v0[0],  P.v0[1],  (int)P.v0[2]);
@@ -58,16 +65,16 @@ void scaleParams(double *Cube, physicalParameters P, WIMPpars *W)
     W->vSp  = scale(&Cube[(int)P.vSp[3]],P.vSp[0],P.vSp[1],(int)P.vSp[2]);
     W->vEp  = scale(&Cube[(int)P.vEp[3]],P.vEp[0],P.vEp[1],(int)P.vEp[2]);
     
-    W->spin = P.spin;
+    W->spin = P.spin; //need a better solution for this, at the moment you can't scan spin
     
 }
 
 //likelihood function for binned data
-double logLikelihood( WIMPpars W, detector *dets, int ndets, physicalParameters P, int b)
+double logLikelihood( WIMPpars W, detector *dets, int ndets, reconstructionParameters P, int b)
 {
 
 	//Calculate log-likelihood
-	double predicted, background, l;
+	double signal, background, l;
 	double loglike = 0;
     double Er_min, Er_max;
 
@@ -78,13 +85,14 @@ double logLikelihood( WIMPpars W, detector *dets, int ndets, physicalParameters 
         //loop over recoil energy bins
         for(int i=0; i<dets[j].nbins; i++)			
         {
+            //set bin limits
             Er_min = (double)i*dets[j].binW + dets[j].ErL;
             Er_max = (double)(i+1)*dets[j].binW + dets[j].ErL;
             
-            background = b * BgRate(dets[j], Er_min, Er_max) * dets[j].exposure;
-            predicted = intRate( Er_min, Er_max, W, dets[j], P) * dets[j].exposure; 
+            background = b * intBgRate(dets[j], Er_min, Er_max) * dets[j].exposure;
+            signal = intWIMPrate(Er_min, Er_max, W, dets[j], P) * dets[j].exposure; 
             
-            l = logPoisson( dets[j].binnedData[i], predicted+background);
+            l = logPoisson( dets[j].binnedData[i], signal+background);
             loglike += l;
             
         } 
@@ -95,28 +103,25 @@ double logLikelihood( WIMPpars W, detector *dets, int ndets, physicalParameters 
 }
 
 //binless likelihood function
-double logLikelihoodBinless( WIMPpars W, detector *dets, int ndets, physicalParameters P, int b)
+double logLikelihoodBinless( WIMPpars W, detector *dets, int ndets, reconstructionParameters P, int b)
 {
 
 	//Calculate log-likelihood
-	double predicted, background;
+	double signal, background;
 	double loglike = 0;
     
     //loop over detectors
     for(int j=0; j<ndets; j++)
     {   
     
-        //total expected background
-        background = b * BgRate(dets[j], dets[j].ErL, dets[j].ErU) * dets[j].exposure;
-        predicted = intRate( dets[j].ErL, dets[j].ErU, W, dets[j], P) * dets[j].exposure; 
-        loglike += logPoisson( dets[j].nEvents, predicted+background);
-        
+        //total expected events
+        background = b * intBgRate( dets[j], dets[j].ErL, dets[j].ErU) * dets[j].exposure;
+        signal  =   intWIMPrate(dets[j].ErL, dets[j].ErU, W, dets[j], P) * dets[j].exposure; 
+        loglike += logPoisson( dets[j].nEvents, signal+background);
+            
         //loop over events
         for (int i=0; i<dets[j].nEvents; i++)
-        {
-            //unfinshed likelihood
-            loglike += dets[j].exposure/predicted * diffRate( dets[j].unbinnedData[i], W, dets[j], P);
-        }
+            loglike += log( dets[j].exposure * ( diffWIMPrate( dets[j].unbinnedData[i], W, dets[j], P) + diffBgRate(dets[j],dets[j].unbinnedData[i]) ) / (signal + background) );
             
     }
 
@@ -143,5 +148,6 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     {
         lnew = logLikelihood( Wcube, pL.detectors, pL.ndet, pL.p, 1);
     }
+    
 }
 

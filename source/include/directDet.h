@@ -2,8 +2,8 @@
     #include "parameterStruct.h"
 #endif
 
-double intRate(double Er_min, double Er_max, WIMPpars W, detector det, physicalParameters P);
+double intWIMPrate(double Er_min, double Er_max, WIMPpars W, detector det, reconstructionParameters P);
 
-double diffRate(double Er, WIMPpars W, detector det, physicalParameters P);
+double diffWIMPrate(double Er, WIMPpars W, detector det, reconstructionParameters P);
 
-double smearedDiffRate(double Er, WIMPpars W, detector det, physicalParameters P);
+double smearedDiffWIMPrate(double Er, WIMPpars W, detector det, reconstructionParameters P);

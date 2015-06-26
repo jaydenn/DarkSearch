@@ -21,6 +21,7 @@ struct detector {
     int bg;
     int eff;
     int res;
+    int nuBg;
     
     double *binnedData;     //array of i bins with binnedData[i] number of events per bin
     int nbins;
@@ -51,7 +52,7 @@ struct detector {
     {
         nIso=-1; AM=-1; isoA[0]=-1; isoFrac[0]=-1; ErL=0; ErU=-1; bg=-1; eff=-1; res=-1, nEvents=0;
                 
-        background = gsl_spline_alloc(gsl_interp_linear,220);
+        background = gsl_spline_alloc(gsl_interp_linear,500);
         accel = gsl_interp_accel_alloc();
     }
 };
