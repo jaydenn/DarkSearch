@@ -9,11 +9,13 @@
 #include "detectors.h"
 #include "detectorFunctions.h"
 
+int SEED=0;
+
 //Generates random number of randomly distributed according to dN/dE for parameters in cube, for detector det (0 or 1, corresponding to order in sampling.par), recoil energies [keV] are stored in MCdata
 int generateUnbinnedData(WIMPpars W, reconstructionParameters P, detector *det, int b, int simSeed)
 {
 
-    double signal = intWIMPrate( det->ErL, det->ErU, W, *det, P) * det->exposure; 
+    double signal = intWIMPrate( det->ErL, det->ErU, W, *det, P) * det->exposure;   
     double background= b*intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
      
     const gsl_rng_type * T;
