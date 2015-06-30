@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	        if(myrank==0)
 	            std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
         }   
-       
+        
         //run multinest sampling
         if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
         
