@@ -60,6 +60,10 @@ int getSamplingPars(parameterList *pL, char *filename)
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
     sscanf(temp,"%d",&(pL->p.isv));
+    if(temp[0]=='p')
+        pL->p.isv = 2;
+    else if(temp[0]=='n')
+        pL->p.isv = 3;
     
     //search ranges and reconstruction parameters    
     //this mess of code makes sure that each parameter can be read in any order and multinest will only loop over the ones with a prior, the others will still be output to file
@@ -95,7 +99,7 @@ int getSamplingPars(parameterList *pL, char *filename)
         
         while(temp[0]=='C')
         {
-            if(pL->p.isv)
+            if(pL->p.isv == 1)
             {
                 //neutron
                 pL->p.coeffn[ind][3]= (double)N-i--; 
@@ -116,7 +120,42 @@ int getSamplingPars(parameterList *pL, char *filename)
                 else {printf("invalid prior type for C%d\n",ind); assert(0);}
                 sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
             }
-            else
+            else if(pL->p.isv == 0)
+            {
+                //neutron
+                pL->p.coeffn[ind][3]= (double)N-i--; 
+                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
+                if(strcmp(prior,"log")==0) pL->p.coeffn[ind][2]=0;
+                else if(strcmp(prior,"linear")==0) pL->p.coeffn[ind][2]=1;
+                else if(strcmp(prior,"gaussian")==0) pL->p.coeffn[ind][2]=2; 
+                else if(strcmp(prior,"none")==0) { pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);}
+                else {printf("invalid prior type for C%d\n",ind); assert(0);}
+                sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+                //proton
+                pL->p.coeffp[ind][3]= (double)N-i--; 
+                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
+                //not scanning proton values 
+                pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar);
+                sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
+            }
+            else if(pL->p.isv == 2)
+            {
+                //proton
+                pL->p.coeffp[ind][3]= (double)N-i--; 
+                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
+                if(strcmp(prior,"log")==0) pL->p.coeffp[ind][2]=0;
+                else if(strcmp(prior,"linear")==0) pL->p.coeffp[ind][2]=1;
+                else if(strcmp(prior,"gaussian")==0) pL->p.coeffp[ind][2]=2; 
+                else if(strcmp(prior,"none")==0) { pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar);}
+                else {printf("invalid prior type for C%d\n",ind); assert(0);}
+                sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
+                //not scanning neutron
+                pL->p.coeffn[ind][3]= (double)N-i--; 
+                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
+                pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);
+                sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+            }
+            else if(pL->p.isv == 3)
             {
                 //neutron
                 pL->p.coeffn[ind][3]= (double)N-i--; 
@@ -288,10 +327,10 @@ int writeSamplingOutput(parameterList pL)
     //print WIMP parameters
     outfile << "// WIMP sim. pars: spin-" << pL.w.spin << ", Mx = " << pL.w.Mx << std::endl << "//           ";
     for( int i=1; i<16; i++)
-        outfile << "C" << i << "p = " << pL.w.coeffp[1] << ", ";
+        outfile << "C" << i << "p = " << pL.w.coeffp[i] << ", ";
     outfile << std::endl << "//           ";
     for( int i=1; i<16; i++)
-        outfile << "C" << i << "n = " << pL.w.coeffn[1] << ", ";
+        outfile << "C" << i << "n = " << pL.w.coeffn[i] << ", ";
     outfile << std::endl;
     outfile << "//Astrophysical parameters: rho = " << pL.p.rho[0] << " GeV/cm^3, v0 = " << pL.p.v0[0]*3E5 << " km/s, vesc = " << pL.p.vesc[0]*3E5 << " km/s" << std::endl; 
         
@@ -302,8 +341,8 @@ int writeSamplingOutput(parameterList pL)
 
     //print parameter headings
     outfile << "//  P                           -2Log(L)                    ";
-    for(int i=0; i<21; i++)
-        outfile  <<  pL.p.parNames[i] << "                          ";
+    for(int i=0; i<36; i++)
+        outfile  <<  pL.p.parNames[i] << "                         ";
 
     outfile << std::endl;
 
@@ -342,10 +381,10 @@ int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, doub
     outfile << "//recoil spectrum for detector "  << pL.detectors[detj].name << std::endl;
     outfile << "//WIMP sim. pars: Mx = " << pL.w.Mx << " GeV, spin = " << pL.w.spin << std::endl << "//           ";
     for( int i=1; i<16; i++)
-        outfile << "C" << i << "p = " << pL.w.coeffp[1] << ", ";
+        outfile << "C" << i << "p = " << pL.w.coeffp[i] << ", ";
     outfile << std::endl << "//           ";
     for( int i=1; i<16; i++)
-        outfile << "C" << i << "n = " << pL.w.coeffn[1] << ", ";
+        outfile << "C" << i << "n = " << pL.w.coeffn[i] << ", ";
     outfile << std::endl;
     outfile << "//Astrophysical parameters: rho = " << pL.p.rho[0] << " GeV/cm^3, v0 = " << pL.p.v0[0]*3E5 << " km/s, vesc = " << pL.p.vesc[0]*3E5 << " km/s" << std::endl; 
     outfile << "//Er(keV)  WIMP-rate  Bg-rate     total-rate (/keV/t/year)" << endl;

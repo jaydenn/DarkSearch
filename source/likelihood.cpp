@@ -49,14 +49,30 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
 {
     
 	W->Mx   = scale(&Cube[(int)P.Mx[3]],  P.Mx[0],  P.Mx[1],  (int)P.Mx[2]);
-		
+    W->spin = P.spin; //spin is not scanned
+    
     for(int i=1;i<16;i++)
     {
-        W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
-        if(P.isv)
+        if(P.isv == 0) //proton and neutron values fixed to eachother
+        {
+            W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
+            W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]],   W->coeffn[i],              0,  3);
+        }
+        else if (P.isv == 1) //proton and neutron values allowed to be different
+        {
+            W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
             W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]], P.coeffp[i][0], P.coeffp[i][1], (int)P.coeffp[i][2]);
-        else
-            W->coeffp[i] = W->coeffn[i];
+        }
+        else if (P.isv == 2) //proton scanned, neutron set to zero
+        {
+            W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]],              0,              0,  3);
+            W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]], P.coeffp[i][0], P.coeffp[i][1], (int)P.coeffp[i][2]);
+        }
+        else if (P.isv == 3) //neutron scanned, proton set to zero
+        {
+            W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
+            W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]],              0,              0,  3);
+        }
     }
        
     W->rho  = scale(&Cube[(int)P.rho[3]], P.rho[0], P.rho[1], (int)P.rho[2]);
@@ -64,8 +80,6 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
     W->vesc = scale(&Cube[(int)P.vesc[3]],P.vesc[0],P.vesc[1],(int)P.vesc[2]);
     W->vSp  = scale(&Cube[(int)P.vSp[3]],P.vSp[0],P.vSp[1],(int)P.vSp[2]);
     W->vEp  = scale(&Cube[(int)P.vEp[3]],P.vEp[0],P.vEp[1],(int)P.vEp[2]);
-    
-    W->spin = P.spin; //need a better solution for this, at the moment you can't scan spin
     
 }
 
@@ -91,7 +105,7 @@ double logLikelihood( WIMPpars W, detector *dets, int ndets, reconstructionParam
             
             background = b * intBgRate(dets[j], Er_min, Er_max) * dets[j].exposure;
             signal = intWIMPrate(Er_min, Er_max, W, dets[j], P) * dets[j].exposure; 
-            
+
             l = logPoisson( dets[j].binnedData[i], signal+background);
             loglike += l;
             
@@ -133,7 +147,7 @@ double logLikelihoodBinless( WIMPpars W, detector *dets, int ndets, reconstructi
 void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)    
 {   
 
-	//get pointer in from MultiNest 
+    //get pointer in from MultiNest 
     parameterList pL = *(parameterList *) pointer;
     
     //WIMP pars for this point in the parameter space
@@ -146,7 +160,7 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     }
     else
     {
-        lnew = logLikelihood( Wcube, pL.detectors, pL.ndet, pL.p, 1);
+        lnew = logLikelihood( Wcube, pL.detectors, pL.ndet, pL.p, 0);
     }
     
 }
