@@ -156,11 +156,11 @@ int main(int argc, char *argv[])
         
         for(int j=0; j< pL.ndet; j++)
         {
-            
+            std::cout << setiosflags(std::ios::scientific) << setprecision(4);
             if(pL.sampling[3])
             {
                 std::cout << "recoil spectrum for detector  " << pL.detectors[j].name << std::endl; 
-                std::cout << "Er(keV)   WIMP-rate  Bg-rate     total-rate (/keV/t/year)" << std::endl;
+                std::cout << "Er(keV)       WIMP-rate     Bg-rate      total-rate (/keV/t/year)" << std::endl;
             }
           
             //for(int i=(int)pL.d.detSpecs[j]->ErL; i< (int)pL.d.detSpecs[j]->ErU; i++)
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
                 background[i] = diffBgRate(pL.detectors[j],Er[i]);
                
                 if(pL.sampling[3])
-                    std::cout << Er[i] << "        " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
+                    std::cout << Er[i] << "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
             }
                        
             err = writeRateOutput(pL,j,Er,signal,background,sizeData);

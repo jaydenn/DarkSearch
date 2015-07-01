@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <string.h> 
 #include <stdlib.h>
@@ -387,11 +388,12 @@ int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, doub
         outfile << "C" << i << "n = " << pL.w.coeffn[i] << ", ";
     outfile << std::endl;
     outfile << "//Astrophysical parameters: rho = " << pL.p.rho[0] << " GeV/cm^3, v0 = " << pL.p.v0[0]*3E5 << " km/s, vesc = " << pL.p.vesc[0]*3E5 << " km/s" << std::endl; 
-    outfile << "//Er(keV)  WIMP-rate  Bg-rate     total-rate (/keV/t/year)" << endl;
+    outfile << "//Er(keV)         WIMP-rate         Bg-rate           total-rate (/keV/t/year)" << endl;
     
+    outfile << std::setiosflags(std::ios::scientific) << std::setprecision(8);
     //write out rate data
     for (int i=1; i < sizeData; i++)
-         outfile << Er[i] <<  "          " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
+         outfile << Er[i] <<  "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
 
     outfile.close();
     
