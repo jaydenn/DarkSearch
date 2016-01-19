@@ -12,10 +12,10 @@
 int SEED=0;
 
 //Generates random number of randomly distributed according to dN/dE for parameters in cube, for detector det (0 or 1, corresponding to order in sampling.par), recoil energies [keV] are stored in MCdata
-int generateUnbinnedData(WIMPpars W, reconstructionParameters P, detector *det, int b, int simSeed)
+int generateUnbinnedData(WIMPpars W, detector *det, int b, int simSeed)
 {
 
-    double signal = intWIMPrate( det->ErL, det->ErU, W, *det, P) * det->exposure;   
+    double signal = intWIMPrate( det->ErL, det->ErU, W, *det) * det->exposure;   
     double background= b*intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
      
     const gsl_rng_type * T;
@@ -29,14 +29,14 @@ int generateUnbinnedData(WIMPpars W, reconstructionParameters P, detector *det, 
     
     det->unbinnedData = new double[(int)det->nEvents];
     
-    double norm = diffWIMPrate( det->ErL, W, *det, P) + b*diffBgRate(*det,det->ErL);
+    double norm = diffWIMPrate( det->ErL, W, *det) + b*diffBgRate(*det,det->ErL);
     int i = 0;
     double Er,y;
     while ( i < det->nEvents)
     {
         Er = gsl_rng_uniform(r)*(det->ErU-det->ErL) + det->ErL;
         y = gsl_rng_uniform(r);
-        if( (diffWIMPrate( det->ErL, W, *det, P) + b*diffBgRate(*det,det->ErL))/norm  > y )
+        if( (diffWIMPrate( det->ErL, W, *det) + b*diffBgRate(*det,det->ErL))/norm  > y )
         {
             det->unbinnedData[i] = Er;
             i++;
@@ -46,7 +46,7 @@ int generateUnbinnedData(WIMPpars W, reconstructionParameters P, detector *det, 
     return 0;
 }
 
-int generateBinnedData(WIMPpars W, reconstructionParameters P, detector *det, int b, int simSeed)
+int generateBinnedData(WIMPpars W, detector *det, int b, int simSeed)
 {
 
     double Er_min, Er_max;
@@ -58,7 +58,7 @@ int generateBinnedData(WIMPpars W, reconstructionParameters P, detector *det, in
     gsl_rng_set(r, simSeed + SEED++);
     
     //total signal and background, for setting bin size
-    double signal = intWIMPrate( det->ErL, det->ErU, W, *det, P) * det->exposure;
+    double signal = intWIMPrate( det->ErL, det->ErU, W, *det) * det->exposure;
     double background = b * intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
 
     //somewhat arbitrary choice of number of bins.. seems to work for exponential data
@@ -84,7 +84,7 @@ int generateBinnedData(WIMPpars W, reconstructionParameters P, detector *det, in
         Er_max = (double)(i+1)*det->binW+det->ErL;
          
         background = b * intBgRate(*det, Er_min, Er_max) * det->exposure;
-        signal = intWIMPrate( Er_min, Er_max, W, *det, P) * det->exposure; 
+        signal = intWIMPrate( Er_min, Er_max, W, *det) * det->exposure; 
         
         if( W.asimov == 1) 
             det->binnedData[i] = gsl_ran_poisson(r,signal+background);

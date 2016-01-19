@@ -14,14 +14,14 @@
 //Include coherent neutrino scattering background
 1
 //Allow isospin violation in reconstruction? (0=no/1=yes/n=just n/p=just p)
-n
+0
 //Search range for reconstruction of parameters
 //par | min/mean  | max/error   | prior (log/linear/gaussian/none)
-Mx       2            10            linear 
+Mx       2            1e3           log 
 spin     0.5                        none                    //currently spin cannot be scanned
-C1       0            1             none                  
+C1       1e-6         1             log                  
 C2       0            1             none
-C3       1e-3         1e3           log
+C3       0            1e3           none
 C4       0            1             none
 C5       0            1             none
 C6       0            1             none
@@ -34,18 +34,18 @@ C12      0            1             none
 C13      0            1             none
 C14      0            1             none
 C15      0            1             none
-rho      0.3          0.1           none //gaussian       // Local dark matter density (Gev/cm^3)
+rho      0.3          0.1           none // gaussian       // Local dark matter density (Gev/cm^3)
 v0       220          20            none //gaussian       // Galactic rotation velocity (km/s)
 vesc     544          40            none //gaussian       // Galactic escape velocity from earth (km/s)
-vSp      10           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
+vSp      20           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
 vEp      0            0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
 // Detector   |  Exposure (Tonne*years)
-#SILICON_low     1.36
+#XENON     100
 //Simulated WIMP parameters
-Mx       90.        // WIMP mass [GeV]
+Mx       100.        // WIMP mass [GeV]
 spin     0.5       // WIMP spin
 //operator  protons   neutrons
-C1          0         0                  
+C1          1e-4      1e-4                  
 C2          0         0
 C3          0         0  
 C4          0         0  

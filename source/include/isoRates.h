@@ -1,1 +1,1 @@
-double isoRate(double Er, WIMPpars W, reconstructionParameters P, int isoA, int isoZ);
+double isoRate(double Er, WIMPpars W, int isoA, int isoZ);
