@@ -8,7 +8,7 @@ double detEff(double Er, int type)
         case 0: 
             return 1;
         case 1: 
-            return .4;
+            return .3;
         case 2: 
             return .4;
         case 3: 
@@ -28,7 +28,7 @@ double detBackground(double Er, int type)
         case 0: 
             return 0.0;
         case 1: 
-            return 1e-9;
+            return 8e-6*(1-.9998);
         case 2: 
             return 4e-6;
         case 3: 
