@@ -12,18 +12,16 @@
 //natural log of Poisson dist: gives more accurate values for small probabilities (because of machine precision)
 double logPoisson(double obs, double expect)
 {
-    if ( expect == 0. && obs == 0 )
+    if ( expect > 0. && obs > 0 )
     {
-        return 0.;
-    }
-    else
-    {
-        if(obs>170)
+        if(obs>200)
         {
             return -expect + (double) obs * log( expect ) - ( obs * log( obs ) - obs );  // Sterling's approx.
         }	
         return -expect + (double) obs * log( expect ) - gsl_sf_lngamma( obs+1 );  // or return gsl_ran_poisson_pdf (obs,expect); 
     }
+    else
+        return -1E299;
 }
 
 //scales by prior and returns ranPar
@@ -148,19 +146,19 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
 {   
 
     //get pointer in from MultiNest 
-    parameterList pL = *(parameterList *) pointer;
+    parameterList *pL = (parameterList *) pointer;
     
     //WIMP pars for this point in the parameter space
     WIMPpars Wcube;
-	scaleParams( Cube, pL.p, &Wcube);
+	scaleParams( Cube, pL->p, &Wcube);
 	
     if(pL.binlessL==1)
     {
-        lnew = logLikelihoodBinless( Wcube, pL.detectors, pL.ndet, 1);
+        lnew = logLikelihoodBinless( Wcube, pL->detectors, pL->ndet, 1);
     }
     else
     {
-        lnew = logLikelihood( Wcube, pL.detectors, pL.ndet, 1);
+        lnew = logLikelihood( Wcube, pL->detectors, pL->ndet, 1);
     }
     
 }

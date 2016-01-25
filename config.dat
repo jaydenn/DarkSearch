@@ -34,18 +34,18 @@ C12      0            1             none
 C13      0            1             none
 C14      0            1             none
 C15      0            1             none
-rho      0.3          0.1           none // gaussian       // Local dark matter density (Gev/cm^3)
-v0       220          20            none //gaussian       // Galactic rotation velocity (km/s)
-vesc     544          40            none //gaussian       // Galactic escape velocity from earth (km/s)
+rho      0.3          0.1           gaussian       // Local dark matter density (Gev/cm^3)
+v0       220          20            gaussian       // Galactic rotation velocity (km/s)
+vesc     544          40            gaussian       // Galactic escape velocity from earth (km/s)
 vSp      20           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
 vEp      0            0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
 // Detector   |  Exposure (Tonne*years)
-#XENON     100
+#XENON     10
 //Simulated WIMP parameters
 Mx       100.        // WIMP mass [GeV]
 spin     0.5       // WIMP spin
 //operator  protons   neutrons
-C1          1e-4      1e-4                  
+C1          1e-5     1e-5                  
 C2          0         0
 C3          0         0  
 C4          0         0  
@@ -63,7 +63,7 @@ C15         0         0
 rho     0.3          
 v0      220          
 vesc    544          
-vSp      10           
+vSp      20           
 vEp       0 
 //Simulate Asimov data set/random Monte-Carlo (0/1)
 0
