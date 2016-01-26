@@ -65,7 +65,7 @@ struct WIMPpars {
 
 struct parameterList {
     double sampling[11];
-    char root[20];
+    char root[100];
     int binlessL;
     int ndet;
     

@@ -27,7 +27,7 @@ int getSamplingPars(parameterList *pL, char *filename)
     int mode;
     char *ret;
     char temp[400];
-    char root[50];
+    char root[100];
     ret = fgets(temp,200,input);
 
     //Mode switch
@@ -35,7 +35,7 @@ int getSamplingPars(parameterList *pL, char *filename)
     sscanf(temp,"%d",&mode);
     
     // root for output files
-    ret = fgets(temp,200,input);
+    ret = fgets(temp,400,input);
     sscanf(temp,"%s %*s",root);
     sprintf(pL->root, "%s" , root);		 
     
