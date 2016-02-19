@@ -82,7 +82,7 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
 }
 
 //likelihood function for binned data
-double logLikelihood( WIMPpars W, detector *dets, int ndets, int b)
+double logLikelihood( WIMPpars *W, detector *dets, int ndets, int b)
 {
 
 	//Calculate log-likelihood
@@ -102,7 +102,7 @@ double logLikelihood( WIMPpars W, detector *dets, int ndets, int b)
             Er_max = (double)(i+1)*dets[j].binW + dets[j].ErL;
             
             background = b * intBgRate(dets[j], Er_min, Er_max) * dets[j].exposure;
-            signal = intWIMPrate(Er_min, Er_max, W, dets[j]) * dets[j].exposure; 
+            signal = intWIMPrate(Er_min, Er_max, W, &(dets[j])) * dets[j].exposure; 
 
             l = logPoisson( dets[j].binnedData[i], signal+background+1e-99);
             loglike += l;
@@ -115,7 +115,7 @@ double logLikelihood( WIMPpars W, detector *dets, int ndets, int b)
 }
 
 //binless likelihood function
-double logLikelihoodBinless( WIMPpars W, detector *dets, int ndets, int b)
+double logLikelihoodBinless( WIMPpars *W, detector *dets, int ndets, int b)
 {
 
 	//Calculate log-likelihood
@@ -128,12 +128,12 @@ double logLikelihoodBinless( WIMPpars W, detector *dets, int ndets, int b)
     
         //total expected events
         background = b * intBgRate( dets[j], dets[j].ErL, dets[j].ErU) * dets[j].exposure;
-        signal  =   intWIMPrate(dets[j].ErL, dets[j].ErU, W, dets[j]) * dets[j].exposure; 
+        signal  =   intWIMPrate(dets[j].ErL, dets[j].ErU, W, &(dets[j])) * dets[j].exposure; 
         loglike += logPoisson( dets[j].nEvents, signal+background);
             
         //loop over events
         for (int i=0; i<dets[j].nEvents; i++)
-            loglike += log( dets[j].exposure * ( diffWIMPrate( dets[j].unbinnedData[i], W, dets[j]) + diffBgRate(dets[j],dets[j].unbinnedData[i]) ) / (signal + background) );
+            loglike += log( dets[j].exposure * ( diffWIMPrate( dets[j].unbinnedData[i], W, &(dets[j])) + diffBgRate(dets[j],dets[j].unbinnedData[i]) ) / (signal + background) );
             
     }
 
@@ -154,11 +154,11 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
 	
     if(pL->binlessL==1)
     {
-        lnew = logLikelihoodBinless( Wcube, pL->detectors, pL->ndet, 1);
+        lnew = logLikelihoodBinless( &Wcube, pL->detectors, pL->ndet, 1);
     }
     else
     {
-        lnew = logLikelihood( Wcube, pL->detectors, pL->ndet, 1);
+        lnew = logLikelihood( &Wcube, pL->detectors, pL->ndet, 1);
     }
     
 }

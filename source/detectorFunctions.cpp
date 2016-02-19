@@ -26,7 +26,7 @@ double detBackground(double Er, int type)
     switch( type ) 
     {
         case 0: 
-            return 0.0;
+            return 1e-99;
         case 1: 
             return 8e-6*(1-.9998);
         case 2: 

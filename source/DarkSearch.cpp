@@ -114,10 +114,10 @@ int main(int argc, char *argv[])
        	        }
        	        if(myrank==0)
                	    std::cout << "***experimental feature***" << std::endl;
-           	    err = generateUnbinnedData( pL.w, &(pL.detectors[i]), 1, simSeed);
+           	    err = generateUnbinnedData( &(pL.w), &(pL.detectors[i]), 1, simSeed);
            	}
            	else
-           	    err = generateBinnedData( pL.w, &(pL.detectors[i]), 1, simSeed);
+           	    err = generateBinnedData( &(pL.w), &(pL.detectors[i]), 1, simSeed);
            	    
        	    if(err)
        	        return 1;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
             for(int i=1;i<100;i++)
             {
                 Er[i] = pL.detectors[j].ErL + (double)i*(pL.detectors[j].ErU-pL.detectors[j].ErL)/100;
-                signal[i] = diffWIMPrate(Er[i], pL.w, pL.detectors[j]); 
+                signal[i] = diffWIMPrate(Er[i], &(pL.w), &(pL.detectors[j])); 
                 background[i] = diffBgRate(pL.detectors[j],Er[i]);
                
                 if(pL.sampling[3])
