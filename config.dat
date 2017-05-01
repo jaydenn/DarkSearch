@@ -4,7 +4,11 @@
 //Multinest Sampling Parameters (0 off, 1 on)
 1                  // do mode separation?
 0                  // run in constant efficiency mode?
+<<<<<<< HEAD
 2000               // number of live points
+=======
+1000               // number of live points
+>>>>>>> 5f981779fc489550def89d0ab81bacb3139ca20b
 1                  // need feedback to standard output (terminal)?
 0                  // resume from a previous job? (only available if asimov data being used)
 0.8                // set the required efficiency. 0.8 and 0.3 are recommended for parameter estimation & evidence evalutaion respectively.
@@ -34,9 +38,9 @@ C12      0            1             none
 C13      0            1             none
 C14      0            1             none
 C15      0            1             none
-rho      0.3          0.1           gaussian       // Local dark matter density (Gev/cm^3)
-v0       220          20            gaussian       // Galactic rotation velocity (km/s)
-vesc     544          40            gaussian       // Galactic escape velocity from earth (km/s)
+rho      0.3          0.1           none //gaussian       // Local dark matter density (Gev/cm^3)
+v0       220          20            none //gaussian       // Galactic rotation velocity (km/s)
+vesc     544          40            none //gaussian       // Galactic escape velocity from earth (km/s)
 vSp      20           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
 vEp      0            0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
 // Detector   |  Exposure (Tonne*years)
