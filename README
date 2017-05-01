@@ -15,8 +15,12 @@ GNU Science Lib
  - probability functions, integration and random number generation.
  - http://www.gnu.org/software/gsl/
 
+On debian based systems type:
+sudo apt-get install libgsl0-dev liblapack-dev 
+
 optional:
 openmpi - needed for parallelization of sampling 
+sudo apt-get install openmpi-bin libopenmpi-dev 
 
 To build just type: 'make'  
 

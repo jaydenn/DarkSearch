@@ -1,18 +1,18 @@
-//Darth Sidious running options
+//Dark Search running options
 0                  // running mode: 0 simulation, 1 Print out dR/dE
 ./results/DS_      // root of output file names, can include directories, make unique to run 2 instances of DS simultaneously
 //Multinest Sampling Parameters (0 off, 1 on)
 1                  // do mode separation?
 0                  // run in constant efficiency mode?
-3000                // number of live points
+2000               // number of live points
 1                  // need feedback to standard output (terminal)?
 0                  // resume from a previous job? (only available if asimov data being used)
 0.8                // set the required efficiency. 0.8 and 0.3 are recommended for parameter estimation & evidence evalutaion respectively.
-0.4                // tol, defines the stopping criteria, 0.5 gives good enough accuracy
+0.2                // tol, defines the stopping criteria, 0.5 gives good enough accuracy
 -1.e90             // all the modes with logZ < Ztol are ignored
 0                  // Use a binless likelihood (0=no/1=yes)
 //Include coherent neutrino scattering background
-1
+0
 //Allow isospin violation in reconstruction? (0=no/1=yes/n=just n/p=just p)
 0
 //Search range for reconstruction of parameters
@@ -40,19 +40,19 @@ vesc     544          40            gaussian       // Galactic escape velocity f
 vSp      20           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
 vEp      0            0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
 // Detector   |  Exposure (Tonne*years)
-#XENON     10
+#XENON      1
 //Simulated WIMP parameters
 Mx       100.        // WIMP mass [GeV]
 spin     0.5       // WIMP spin
 //operator  protons   neutrons
-C1          1e-5     1e-5                  
+C1          2e-4         0                  
 C2          0         0
 C3          0         0  
-C4          0         0  
+C4          0         0
 C5          0         0  
-C6          0         0  
+C6          0         0
 C7          0         0  
-C8          0         0  
+C8          0         0
 C9          0         0 
 C10         0         0  
 C11         0         0  

@@ -2,18 +2,13 @@
 
 let index=0
 
-for detector in "XENON_low" "GERMANIUM_low" "SILICON_low" "FLOURINE_low"
+for OPsim in 1 4 5 6 8 9 10 11
 do
 
-for OP in C1 C3 C4 C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 C15
+for OPrec in 1 4 5 6 8 9 10 11
 do
 
-for N in n p
-do
-
-    ./DarkSearch conf/config_${detector:1:2}_${OP}_${N}.dat > /dev/null
-
-    mv results/DS_${detector}_dRdE.dat ../../Projects/nuFloor/bestFit_NRops/results/DS_rates_${detector:1:2}_${OP}_${N}.dat
+    ./DarkSearch conf/config_C${OPsim}sim_C${OPrec}rec_200.dat > /dev/null
 
 done
 done

@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         }
         
         // set some MultiNest sampling parameters
-        int pWrap[pL.p.nPar] = {};              // which parameters to have periodic boundary conditions?
+        int pWrap[pL.p.nPar];              // which parameters to have periodic boundary conditions?
         int seed = -1;			   	            // random no. generator seed, if < 0 then take the seed from system clock
         int simSeed;
         int ndims = pL.p.nPar;                                // any combination of mass, sigmaSI, sigmaSIvec, sigmaSD, delta, fn/fp, bn/bp, an/bp and rho_DM, v0, vesc 

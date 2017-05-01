@@ -2,13 +2,8 @@
 #include <iostream>
 #include "DMffRates.h"
 
-double isoRate(double Er, WIMPpars W, physicalParameters P, int isoA, int isoZ)
+double isoRate(double Er, WIMPpars W, int isoA, int isoZ)
 {
-    //temporary**
-    double temp[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    W.coeffn = W.coeff;
-    W.coeffp = W.coeff;
-    //temporary**
 
     switch(isoZ)
     {
