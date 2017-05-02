@@ -1,9 +1,5 @@
 CC = mpif90
-<<<<<<< HEAD
 FLAGS = -g -Ofast -DMPI -DOMPI_SKIP_MPICXX
-=======
-FLAGS = -g -O3 -DMPI -DOMPI_SKIP_MPICXX
->>>>>>> 5f981779fc489550def89d0ab81bacb3139ca20b
 NESTLIBDIR = ../MultiNest_v3.9
 
 LIBS = -L$(NESTLIBDIR) -lnest3 -llapack -lgsl -lgslcblas -lstdc++ -lgfortran -lm
