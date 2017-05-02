@@ -6,7 +6,6 @@ This code contains functions for the calculation of direct detection rates with 
 
 
 ## Installation
----------------------
 requires:
 - Multinest         
  -- nested sampling algorithm for posterior sampling (requires lapack) 
@@ -37,8 +36,7 @@ To build with mpi:
 
 After installation it would be wise to type:
 ```
-git update-index --assume-unchanged Makefile
-git update-index --assume-unchanged config.dat
+git update-index --assume-unchanged Makefile config.dat
 ```
 
 this will prevent these files from being overwritten on future pulls from the server.
