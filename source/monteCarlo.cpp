@@ -63,10 +63,8 @@ int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
     double background = b * intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
 
     //somewhat arbitrary choice of number of bins.. seems to work for exponential data
-    det->nbins = floor( sqrt(signal+background) )+2;
+    det->nbins = floor( sqrt(signal+background) )+1;
 
-    if(det->nbins == 0)
-        det->nbins = 1;
     det->binW = ( det->ErU - det->ErL ) / ( (double) det->nbins);
     
     try
@@ -96,7 +94,7 @@ int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
     }
     
     //don't loop over empty bins, it seems to skew the likelihood function if you do 
-    while(det->binnedData[det->nbins -1]<1)
+    while(det->binnedData[det->nbins -1]<1 && det->nbins>1)
         det->nbins--;
     
     gsl_rng_free(r);

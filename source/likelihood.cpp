@@ -12,14 +12,8 @@
 //natural log of Poisson dist: gives more accurate values for small probabilities (because of machine precision)
 double logPoisson(double obs, double expect)
 {
-    if ( expect > 0. && obs > 0 )
-    {
-        if(obs>200)
-        {
-            return -expect + (double) obs * log( expect ) - ( obs * log( obs ) - obs );  // Sterling's approx.
-        }	
-        return -expect + (double) obs * log( expect ) - gsl_sf_lngamma( obs+1 );  // or return gsl_ran_poisson_pdf (obs,expect); 
-    }
+    if ( expect > 0. && obs > 0. )
+        return -expect + obs * log( expect ) - gsl_sf_lngamma( obs+1 );
     else
         return -1E299;
 }
@@ -47,7 +41,16 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
 {
     
 	W->Mx   = scale(&Cube[(int)P.Mx[3]],  P.Mx[0],  P.Mx[1],  (int)P.Mx[2]);
-    W->spin = P.spin; //spin is not scanned
+    
+    if ( Cube[(int)P.spin[3]] < 0.6666 )
+    {
+        if ( Cube[(int)P.spin[3]] < 0.3333 )
+            W->spin = Cube[(int)P.spin[3]] = 0;
+        else
+            W->spin = Cube[(int)P.spin[3]] = 0.5;
+    }
+    else
+        W->spin = Cube[(int)P.spin[3]] = 1;
     
     for(int i=1;i<16;i++)
     {

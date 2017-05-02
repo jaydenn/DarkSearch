@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         int seed = -1;			   	            // random no. generator seed, if < 0 then take the seed from system clock
         int simSeed;
         int ndims = pL.p.nPar;                                // any combination of mass, sigmaSI, sigmaSIvec, sigmaSD, delta, fn/fp, bn/bp, an/bp and rho_DM, v0, vesc 
-        int npar = 36;                                        // npar can be greater than ndim if you want to get other values from the loglike function output to file
+        int npar = 37;                                        // npar can be greater than ndim if you want to get other values from the loglike function output to file
         double logZero = -DBL_MAX;							  // points with loglike < logZero will be ignored by MultiNest
         int initMPI = 0;								      // initialize MPI routines?, relevant only if compiling with MPI
         int outfile = 1;								      // write output files?
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         		T=gsl_rng_default;
 	            r=gsl_rng_alloc(T);
 	            gsl_rng_set(r, (int)time(NULL));
-	            simSeed = (int) 60000*gsl_rng_uniform(r);		//this is to make sure each MPI thread has the same 'random' data (it would be nice to have more than 60,000 different experiments..)
+	            simSeed = (int) 60000*gsl_rng_uniform(r);		//this is to make sure each MPI thread has the same 'random' data (it would be nice to have more than 60,000 different experiments.. the limit is because it only takes an integer as a seed)
 	        }
 	        MPI_Bcast(&simSeed,1,MPI_INT,0,MPI_COMM_WORLD);
 	        MPI_Barrier(MPI_COMM_WORLD);

@@ -6,7 +6,7 @@ struct reconstructionParameters {
     //each parameter array contains:
     // {min, max, prior, parIndex};
     double Mx[4];
-    double spin;
+    double spin[4];
     double coeffn[16][4];
     double coeffp[16][4];
     double rho[4];
@@ -14,7 +14,7 @@ struct reconstructionParameters {
     double vesc[4];
     double vSp[4];
     double vEp[4];
-    char parNames[36][5];
+    char parNames[37][5];
     int isv;
     int nPar;
     

@@ -71,7 +71,7 @@ int getSamplingPars(parameterList *pL, char *filename)
     ret = fgets(temp,200,input);
 
     char prior[10];
-    pL->p.nPar = 36;
+    pL->p.nPar = 37;
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
     int N = pL->p.nPar; 
@@ -80,7 +80,6 @@ int getSamplingPars(parameterList *pL, char *filename)
     
     while(temp[0]!='/')
     {
-       
         if(temp[0]=='M')
         {
             pL->p.Mx[3]= (double)N-i--; 
@@ -92,33 +91,39 @@ int getSamplingPars(parameterList *pL, char *filename)
             else {printf("invalid prior type for Mx\n"); assert(0);}
             sprintf(pL->p.parNames[(int)pL->p.Mx[3]],"Mx");
         }
-        
+
         if(temp[0]=='s')
         {
-            sscanf(temp,"%*s %lf %*s",&(pL->p.spin));
+            pL->p.spin[3]= (double)N-i--; 
+            sscanf(temp,"%*s %lf %lf %s",&(pL->p.spin[0]),&(pL->p.spin[1]),prior);
+            pL->p.spin[2]=1;
+            if(strcmp(prior,"none")==0) { pL->p.spin[2]=3; pL->p.nPar--; i++; pL->p.spin[3]= pL->p.nPar;}
+            sprintf(pL->p.parNames[(int)pL->p.spin[3]],"spin");
         }
-        
+       
         while(temp[0]=='C')
         {
+            
             if(pL->p.isv == 1)
             {
+            std::cout << "- C" << ind << " - " << pL->p.nPar << " " << pL->p.isv << std::endl;
                 //neutron
                 pL->p.coeffn[ind][3]= (double)N-i--; 
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
                 if(strcmp(prior,"log")==0) pL->p.coeffn[ind][2]=0;
                 else if(strcmp(prior,"linear")==0) pL->p.coeffn[ind][2]=1;
                 else if(strcmp(prior,"gaussian")==0) pL->p.coeffn[ind][2]=2; 
-                else if(strcmp(prior,"none")==0) { pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);}
+                else if(strcmp(prior,"none")==0) { pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);   }
                 else {printf("invalid prior type for C%d\n",ind); assert(0);}
                 sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
                 //proton
                 pL->p.coeffp[ind][3]= (double)N-i--; 
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
-                if(strcmp(prior,"log")==0) pL->p.coeffp[ind][2]=0;
+                if(strcmp(prior,"log")==0) pL->p.coeffp[ind][2]=0; 
                 else if(strcmp(prior,"linear")==0) pL->p.coeffp[ind][2]=1;
-                else if(strcmp(prior,"gaussian")==0) pL->p.coeffp[ind][2]=2; 
-                else if(strcmp(prior,"none")==0) { pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar);}
-                else {printf("invalid prior type for C%d\n",ind); assert(0);}
+                else if(strcmp(prior,"gaussian")==0) pL->p.coeffp[ind][2]=2;
+                else if(strcmp(prior,"none")==0) { pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar); }
+                else {printf("invalid prior type for C%d\n",ind); assert(0);}       
                 sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
             }
             else if(pL->p.isv == 0)
@@ -176,6 +181,8 @@ int getSamplingPars(parameterList *pL, char *filename)
             }
             ret = fgets(temp,200,input);
             ind++;
+            
+                       std::cout << "  - C" << ind << " - " << pL->p.nPar << " " << pL->p.isv << std::endl;
         }
         
      
@@ -340,7 +347,7 @@ int writeSamplingOutput(parameterList pL)
 
     //print parameter headings
     outfile << "//  P                           -2Log(L)                    ";
-    for(int i=0; i<36; i++)
+    for(int i=0; i<37; i++)
         outfile  <<  pL.p.parNames[i] << "                         ";
 
     outfile << std::endl;
