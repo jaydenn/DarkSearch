@@ -30,7 +30,7 @@ int InitializeBackground(detector *det)
     double Bg[500];
     for(int i=0; i<500; i++)
     {
-        Er[i] = det->ErL + (double)i*(det->ErU-det->ErL)/499;
+        Er[i] = det->ErL + (double)i*(det->ErU-det->ErL)/498;   //overshoot bound because sometimes gsl complains
         Bg[i] = detBackground(Er[i], det->bg) * 1000.0 * 365.24;
 
         if(det->nuBg)
