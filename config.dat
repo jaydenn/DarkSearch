@@ -4,11 +4,20 @@
 //Multinest Sampling Parameters (0 off, 1 on)
 1                  // do mode separation?
 0                  // run in constant efficiency mode?
+<<<<<<< HEAD
+2000               // number of live points
+=======
 1000               // number of live points
+>>>>>>> 5f981779fc489550def89d0ab81bacb3139ca20b
 1                  // need feedback to standard output (terminal)?
 0                  // resume from a previous job? (only available if asimov data being used)
+<<<<<<< HEAD
 0.9                // set the required efficiency. 0.8 and 0.3 are recommended for parameter estimation & evidence evalutaion respectively.
 0.8                // tol, defines the stopping criteria, 0.5 gives good enough accuracy
+=======
+0.8                // set the required efficiency. 0.8 and 0.3 are recommended for parameter estimation & evidence evalutaion respectively.
+0.2                // tol, defines the stopping criteria, 0.5 gives good enough accuracy
+>>>>>>> d933cb42898463367d54f02ddd31061d7ad1a698
 -1.e90             // all the modes with logZ < Ztol are ignored
 0                  // Use a binless likelihood (0=no/1=yes)
 //Include coherent neutrino scattering background
