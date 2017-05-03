@@ -163,7 +163,6 @@ int main(int argc, char *argv[])
                 std::cout << "Er(keV)       WIMP-rate     Bg-rate      total-rate (/keV/t/year)" << std::endl;
             }
           
-            //for(int i=(int)pL.d.detSpecs[j]->ErL; i< (int)pL.d.detSpecs[j]->ErU; i++)
             for(int i=1;i<100;i++)
             {
                 Er[i] = pL.detectors[j].ErL + (double)i*(pL.detectors[j].ErU-pL.detectors[j].ErL)/100;

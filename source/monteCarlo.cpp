@@ -94,8 +94,8 @@ int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
     }
     
     //don't loop over empty bins, it seems to skew the likelihood function if you do 
-    while(det->binnedData[det->nbins -1]<1 && det->nbins>1)
-        det->nbins--;
+    //while(det->binnedData[det->nbins -1]<1 && det->nbins>1)
+    //    det->nbins--;
     
     gsl_rng_free(r);
     return 0;
