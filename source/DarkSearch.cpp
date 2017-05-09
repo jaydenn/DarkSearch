@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
      
         //get sampling parameters from file
         int mode = getSamplingPars( &pL, filename); 
-    
+        pL.w.printWIMPpars();
         if ( mode < 0 ) 
         {
             std::cout << "Problem with config file, aborting" << std::endl;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         int seed = -1;			   	            // random no. generator seed, if < 0 then take the seed from system clock
         int simSeed;
         int ndims = pL.p.nPar;                                // any combination of mass, sigmaSI, sigmaSIvec, sigmaSD, delta, fn/fp, bn/bp, an/bp and rho_DM, v0, vesc 
-        int npar = 37;                                        // npar can be greater than ndim if you want to get other values from the loglike function output to file
+        int npar = 42;                                        // npar can be greater than ndim if you want to get other values from the loglike function output to file
         double logZero = -DBL_MAX;							  // points with loglike < logZero will be ignored by MultiNest
         int initMPI = 0;								      // initialize MPI routines?, relevant only if compiling with MPI
         int outfile = 1;								      // write output files?
@@ -125,7 +125,6 @@ int main(int argc, char *argv[])
 	        if(myrank==0)
 	            std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
         }   
-        
         //run multinest sampling
         if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
 

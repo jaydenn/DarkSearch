@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h> 
 #include <stdlib.h>
+#include <unistd.h>
 #include <assert.h>
 #include "parameterStruct.h"
 #include "detectors.h"
@@ -66,12 +67,16 @@ int getSamplingPars(parameterList *pL, char *filename)
     else if(temp[0]=='n')
         pL->p.isv = 3;
     
+    ret = fgets(temp,200,input);
+    ret = fgets(temp,200,input);
+    sscanf(temp,"%d",&(pL->p.vDindex));
+    
     //search ranges and reconstruction parameters    
     //this mess of code makes sure that each parameter can be read in any order and multinest will only loop over the ones with a prior, the others will still be output to file
     ret = fgets(temp,200,input);
 
     char prior[10];
-    pL->p.nPar = 37;
+    pL->p.nPar = 42;
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
     int N = pL->p.nPar; 
@@ -106,7 +111,6 @@ int getSamplingPars(parameterList *pL, char *filename)
             
             if(pL->p.isv == 1)
             {
-            std::cout << "- C" << ind << " - " << pL->p.nPar << " " << pL->p.isv << std::endl;
                 //neutron
                 pL->p.coeffn[ind][3]= (double)N-i--; 
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
@@ -182,7 +186,6 @@ int getSamplingPars(parameterList *pL, char *filename)
             ret = fgets(temp,200,input);
             ind++;
             
-                       std::cout << "  - C" << ind << " - " << pL->p.nPar << " " << pL->p.isv << std::endl;
         }
         
      
@@ -198,7 +201,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             sprintf(pL->p.parNames[(int)pL->p.rho[3]],"rho");
         }
 
-        if(temp[1]=='0')
+        if(temp[0]=='v' && temp[1]=='0')
         {
             pL->p.v0[3]= N-i--; 
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.v0[0]),&(pL->p.v0[1]),prior);
@@ -253,7 +256,22 @@ int getSamplingPars(parameterList *pL, char *filename)
             else {printf("invalid prior type for vEp\n"); assert(0);}
             sprintf(pL->p.parNames[(int)pL->p.vEp[3]],"vEp");
         }
- 
+        
+        if(temp[0]=='a')
+        {
+            int aInd = temp[1] - '0';
+            pL->p.vLa[aInd][0]= N-i--; 
+            sscanf(temp,"%*s %lf %lf %s",&(pL->p.vLa[aInd][0]),&(pL->p.vLa[aInd][1]),prior);
+            pL->p.vLa[aInd][0]=pL->p.vLa[aInd][0]/3e5;
+            pL->p.vLa[aInd][1]=pL->p.vLa[aInd][1]/3e5;
+            if(prior[2]=='g') pL->p.vLa[aInd][2]=0;
+            else if(prior[1]=='i') pL->p.vLa[aInd][2]=1;
+            else if(prior[0]=='g') pL->p.vLa[aInd][2]=2; 
+            else if(prior[0]=='n') { pL->p.vLa[aInd][2]=3; pL->p.nPar--; i++; pL->p.vLa[aInd][3]= pL->p.nPar;}
+            else {printf("invalid prior type for a\n"); assert(0);}
+            sprintf(pL->p.parNames[(int)pL->p.vLa[aInd][3]],"a0");
+        }
+        
         ret = fgets(temp,200,input);
        
     }
@@ -302,6 +320,8 @@ int getSamplingPars(parameterList *pL, char *filename)
         sscanf(temp,"%*s %lf",&(pL->w.vSp)); pL->w.vSp/=3e5;
         ret = fgets(temp,200,input);
         sscanf(temp,"%*s %lf",&(pL->w.vEp)); pL->w.vEp/=3e5;
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %d",&(pL->w.vDindex));
         
         //asimov or random sim?
         ret = fgets(temp,200,input);
@@ -364,8 +384,11 @@ int writeSamplingOutput(parameterList pL)
     std::string line;
     while(std::getline(infile,line))
         outfile << line << std::endl;
+    
     outfile.close();
     infile.close();
+    
+    unlink(filename);
     
     return 0;
 }

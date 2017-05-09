@@ -1,5 +1,5 @@
 # Dark Search
----------------------
+
 June 2015
 
 This code contains functions for the calculation of direct detection rates with full nuclear form factors (calculated by DMformfactor). It is designed to simulate a WIMP signal and reconstruct WIMP model parameters from the simulated signal.

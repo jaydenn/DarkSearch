@@ -13,7 +13,7 @@ double isoRate(double Er, WIMPpars *W, int isoA, int isoZ)
             switch(isoA)
             {
                 case 19:
-                    return rate9A19( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ9A19( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 default:
                     cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
                     return 0;
@@ -25,7 +25,7 @@ double isoRate(double Er, WIMPpars *W, int isoA, int isoZ)
             switch(isoA)
             {
                 case 23:
-                    return rate11A23( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ11A23( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 default:
                     cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
                     return 0;
@@ -37,41 +37,41 @@ double isoRate(double Er, WIMPpars *W, int isoA, int isoZ)
             switch(isoA)
             {
                 case 28:
-                    return rate14A28( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ14A28( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 29:
-                    return rate14A29( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ14A29( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 30:
-                    return rate14A30( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ14A30( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 default:
                     cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
                     return 0;
             }
         }
         //ARGON
-        case 18:
-        {   
-            switch(isoA)
-            {
-                case 40:
-                    return rate18A40( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
-                default:
-                    cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
-                    return 0;                
-            }
-        }    
+        //case 18:
+        //{   
+        //    switch(isoA)
+        //    {
+        //       case 40:
+        //            return rateZ18A40( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
+        //        default:
+        //            cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
+        //            return 0;                
+        //   }
+        //}    
         //GERMANIUM
         case 32:
         {
             switch(isoA)
             {
                 case 70:
-                    return rate32A70( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ32A70( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 72:
-                    return rate32A72( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ32A72( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 73:
-                    return rate32A73( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ32A73( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 74:
-                    return rate32A74( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ32A74( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 default:
                     cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
                     return 0;
@@ -83,7 +83,7 @@ double isoRate(double Er, WIMPpars *W, int isoA, int isoZ)
             switch(isoA)
             {
                 case 127:
-                    return rate53A127( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ53A127( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 default:
                     cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
                     return 0;
@@ -96,17 +96,17 @@ double isoRate(double Er, WIMPpars *W, int isoA, int isoZ)
             {
 
                 case 129:
-                    return rate54A129( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ54A129( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 130:
-                    return rate54A130( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ54A130( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 131:
-                    return rate54A131( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ54A131( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 132:
-                    return rate54A132( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ54A132( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 134:
-                    return rate54A134( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ54A134( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 case 136:
-                    return rate54A136( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc);
+                    return rateZ54A136( Er, W->Mx, W->spin, W->coeffn, W->coeffp, W->rho, W->v0, W->v0+W->vSp+W->vEp, W->vesc, W->vDindex, W->vLa);
                 default:
                     cout << "isotope A=" << isoA << " Z=" << isoZ << " not found, rate will be inaccurate" << endl;
                     return 0;

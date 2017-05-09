@@ -77,11 +77,21 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
     }
        
     W->rho  = scale(&Cube[(int)P.rho[3]], P.rho[0], P.rho[1], (int)P.rho[2]);
-    W->v0   = scale(&Cube[(int)P.v0[3]],  P.v0[0],  P.v0[1],  (int)P.v0[2]);
-    W->vesc = scale(&Cube[(int)P.vesc[3]],P.vesc[0],P.vesc[1],(int)P.vesc[2]);
-    W->vSp  = scale(&Cube[(int)P.vSp[3]],P.vSp[0],P.vSp[1],(int)P.vSp[2]);
-    W->vEp  = scale(&Cube[(int)P.vEp[3]],P.vEp[0],P.vEp[1],(int)P.vEp[2]);
+
+    W->vDindex=P.vDindex;
     
+    if(P.vDindex==2) //if using Legendre poly for velocity
+    {
+        for(int i=0;i<5;i++)
+            W->vLa[i] = scale(&Cube[(int)P.vLa[i][3]],  P.vLa[i][0],  P.vLa[i][1],  (int)P.vLa[i][2]);
+    }
+    else
+    {
+        W->v0   = scale(&Cube[(int)P.v0[3]],  P.v0[0],  P.v0[1],  (int)P.v0[2]);
+        W->vesc = scale(&Cube[(int)P.vesc[3]],P.vesc[0],P.vesc[1],(int)P.vesc[2]);
+        W->vSp  = scale(&Cube[(int)P.vSp[3]],P.vSp[0],P.vSp[1],(int)P.vSp[2]);
+        W->vEp  = scale(&Cube[(int)P.vEp[3]],P.vEp[0],P.vEp[1],(int)P.vEp[2]);
+    }
 }
 
 //likelihood function for binned data

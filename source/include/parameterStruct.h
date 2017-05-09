@@ -14,20 +14,23 @@ struct reconstructionParameters {
     double vesc[4];
     double vSp[4];
     double vEp[4];
-    char parNames[37][5];
+    char parNames[44][7];
     int isv;
     int nPar;
+    int vDindex;
+    double vLa[5][4];
     
     void printReconstPars()
     {
         printf("%d reconstruction parameters:\n",nPar);
         printf("   %.0f < Mx  < %.0f  prior: %.0f, index: %.0f\n",Mx[0],Mx[1],Mx[2],Mx[3]);
         printf("   rho = %.2f +\\- %.2f  prior: %.0f, index: %.0f\n",rho[0],rho[1],rho[2],rho[3]);        
+        printf("   reconstruct using vDist: %d\n",vDindex);
         printf("   v0  = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",v0[0]*3e5,v0[1]*3e5,v0[2],v0[3]);
         printf("   vesc = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",vesc[0]*3e5,vesc[1]*3e5,vesc[2],vesc[3]);
         printf("   vSp  = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",vSp[0]*3e5,vSp[1]*3e5,vSp[2],vSp[3]);
         printf("   vEp = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",vEp[0]*3e5,vEp[1]*3e5,vEp[2],vEp[3]);
-        
+        printf("   a0 = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",vLa[0][0],vLa[0][1],vLa[0][2],vLa[0][3]);
     }
     
 };
@@ -42,6 +45,8 @@ struct WIMPpars {
     double vesc;
     double vSp;
     double vEp;
+    int vDindex;
+    double vLa[5];
     int asimov;
     
     void printWIMPpars()
@@ -55,6 +60,8 @@ struct WIMPpars {
         printf("   vSp= %E\n",vSp);
         printf("   vEp= %E\n",vEp);
         printf("   asmv= %d\n",asimov);
+        printf("   vDist= %d\n",vDindex);
+        printf("   asmv= %f.0\n",vLa[0]);
         for(int i=1;i<16;i++)
         {
             printf("    c%d=%E   %E\n",i,coeffn[i],coeffp[i]);
