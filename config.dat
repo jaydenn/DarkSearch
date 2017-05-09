@@ -14,7 +14,9 @@
 //Include coherent neutrino scattering background
 0
 //Allow isospin violation in reconstruction? (0=no/1=yes/n=just n/p=just p)
-1
+0
+//Velocity distribution to assume for reconstruction (0=MB,1=MBcutoff,2=Legendre poly)
+0
 //Search range for reconstruction of parameters
 //par | min/mean  | max/error   | prior (log/linear/gaussian/none)
 Mx       2            1e3           log 
@@ -39,6 +41,11 @@ v0       220          20            gaussian       // Galactic rotation velocity
 vesc     544          40            gaussian       // Galactic escape velocity from earth (km/s)
 vSp      20           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
 vEp      0            0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
+a0       0            50            none
+a1       0            50            none
+a2       0            50            none
+a3       0            50            none
+a4       0            50            none
 // Detector   |  Exposure (Tonne*years)
 #XENON      3.4
 #GERMANIUM  7.8
@@ -65,6 +72,7 @@ rho     0.3
 v0      220          
 vesc    544          
 vSp      20           
-vEp       0 
+vEp       0
+vDindex   1
 //Simulate Asimov data set/random Monte-Carlo (0/1)
 0
