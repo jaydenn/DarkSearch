@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
      
         //get sampling parameters from file
         int mode = getSamplingPars( &pL, filename); 
-        pL.w.printWIMPpars();
+        pL.printPars();
         if ( mode < 0 ) 
         {
             std::cout << "Problem with config file, aborting" << std::endl;

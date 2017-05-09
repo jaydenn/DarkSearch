@@ -61,7 +61,7 @@ struct WIMPpars {
         printf("   vEp= %E\n",vEp);
         printf("   asmv= %d\n",asimov);
         printf("   vDist= %d\n",vDindex);
-        printf("   asmv= %f.0\n",vLa[0]);
+        printf("   a_i={%.0f %.0f %.0f %.0f %.0f}\n",vLa[0],vLa[1],vLa[2],vLa[3],vLa[4]);
         for(int i=1;i<16;i++)
         {
             printf("    c%d=%E   %E\n",i,coeffn[i],coeffp[i]);

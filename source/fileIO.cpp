@@ -260,18 +260,15 @@ int getSamplingPars(parameterList *pL, char *filename)
         if(temp[0]=='a')
         {
             int aInd = temp[1] - '0';
-            pL->p.vLa[aInd][0]= N-i--; 
+            pL->p.vLa[aInd][3]= N-i--; 
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.vLa[aInd][0]),&(pL->p.vLa[aInd][1]),prior);
-            pL->p.vLa[aInd][0]=pL->p.vLa[aInd][0]/3e5;
-            pL->p.vLa[aInd][1]=pL->p.vLa[aInd][1]/3e5;
             if(prior[2]=='g') pL->p.vLa[aInd][2]=0;
             else if(prior[1]=='i') pL->p.vLa[aInd][2]=1;
             else if(prior[0]=='g') pL->p.vLa[aInd][2]=2; 
             else if(prior[0]=='n') { pL->p.vLa[aInd][2]=3; pL->p.nPar--; i++; pL->p.vLa[aInd][3]= pL->p.nPar;}
             else {printf("invalid prior type for a\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.vLa[aInd][3]],"a0");
+            sprintf(pL->p.parNames[(int)pL->p.vLa[aInd][3]],"a%d",aInd);
         }
-        
         ret = fgets(temp,200,input);
        
     }
