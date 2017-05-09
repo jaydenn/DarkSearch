@@ -73,8 +73,8 @@ double G(double v0, double ve, double vesc, double vmin, int index, double *a)
             vInt.a = a;
             vIntN.a = a;
             
-            double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-5);
-            return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,1000,1e-5)/norm;
+            //double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-5);
+            return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,1000,1e-6);
         }
         
         default:
@@ -112,8 +112,9 @@ double Gsq(double v0, double ve, double vesc, double vmin, int index, double *a)
             vInt.a = a;
             vIntN.a = a;
             
-            double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-5);
-            return DEIntegrator<velocityIntegralvSq>::Integrate(vInt,vmin,1000,1e-5)/norm;
+            //testing, it should find a's that are normalized
+            //double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-5);
+            return DEIntegrator<velocityIntegralvSq>::Integrate(vInt,vmin,1000,1e-6);
         }
         default:
         {
