@@ -7,6 +7,7 @@
 
 void chebyshev_array(int i, double x, double *result)
 {
+    result[0] = 1;
     result[1] = x;
     result[2] = 2*x*x - 1;
     if(i > 2)
@@ -29,17 +30,17 @@ void chebyshev_array(int i, double x, double *result)
     }                   
 }
 
-// **not normalized** norm comes from integral as part of g below
+// only normalized after calculation of a0
 double fpoly(double v, double *a, int N)
 {
     double Ps[N]; double sum=0;
     
-    //if()
+    //if(pL->CorL)
     //    gsl_sf_legendre_Pl_array(N-1, 2*v/VMAX - 1, Ps);
     //else
     chebyshev_array(N, 2*v/VMAX - 1, Ps);
         
-    for( int i=1; i <= N; i++)
+    for( int i=0; i <= N; i++)
         sum -= a[i]*Ps[i];
 
     return v*v*exp( sum );
@@ -99,14 +100,17 @@ double G(double v0, double ve, double vesc, double vmin, int index, double *a)
     if ( index > 1 && index < 8 )
     {
         velocityIntegralonV vInt;
-        velocityIntegralNorm vIntN;
         vInt.a = a;
         vInt.N = index;
-        vIntN.a = a;
-        vIntN.N = index;
         
-        double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-6); //should only do this once per choice of a's (store in W)
-        return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,1000,1e-6)/norm;
+        if(a[0]==0)
+        {
+            velocityIntegralNorm vIntN;
+            vIntN.a = a;
+            vIntN.N = index;
+            a[0] = log(DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-6));
+        }
+        return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,1000,1e-6);
     }
     else        
     {
@@ -135,14 +139,17 @@ double Gsq(double v0, double ve, double vesc, double vmin, int index, double *a)
     if ( index > 1 && index < 8 )
     {
         velocityIntegralvSq vInt;
-        velocityIntegralNorm vIntN;
         vInt.a = a;
         vInt.N = index;
-        vIntN.a = a;
-        vIntN.N = index;
         
-        double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-6);
-        return DEIntegrator<velocityIntegralvSq>::Integrate(vInt,vmin,1000,1e-6)/norm;
+        if(a[0]==0)
+        {
+            velocityIntegralNorm vIntN;
+            vIntN.a = a;
+            vIntN.N = index;
+            a[0] = log(DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,1000,1e-6));
+        }
+        return DEIntegrator<velocityIntegralvSq>::Integrate(vInt,vmin,1000,1e-6);
     }
     else
     {

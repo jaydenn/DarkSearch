@@ -85,6 +85,7 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
     {
         for(int i=1;i<=P.vDindex;i++)
             W->vLa[i] = scale(&Cube[(int)P.vLa[i][3]],  P.vLa[i][0],  P.vLa[i][1],  (int)P.vLa[i][2]);
+        W->vLa[0] = 0;
     }
     else
     {

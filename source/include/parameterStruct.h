@@ -16,13 +16,14 @@ struct reconstructionParameters {
     double vEp[4];
     char parNames[48][7];
     int isv;
-    int nPar;
+    int nPar;     //number of WIMP parameters tracked
+    int nDim;     //dimension of reconstruction
     int vDindex;
     double vLa[8][4];
     
     void printReconstPars()
     {
-        printf("%d reconstruction parameters:\n",nPar);
+        printf("%d reconstruction parameters:\n",nDim);
         printf("   %.0f < Mx  < %.0f  prior: %.0f, index: %.0f\n",Mx[0],Mx[1],Mx[2],Mx[3]);
         printf("   rho = %.2f +\\- %.2f  prior: %.0f, index: %.0f\n",rho[0],rho[1],rho[2],rho[3]);        
         printf("   reconstruct using vDist: %d\n",vDindex);
@@ -30,7 +31,7 @@ struct reconstructionParameters {
         printf("   vesc = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",vesc[0]*3e5,vesc[1]*3e5,vesc[2],vesc[3]);
         printf("   vSp  = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",vSp[0]*3e5,vSp[1]*3e5,vSp[2],vSp[3]);
         printf("   vEp = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",vEp[0]*3e5,vEp[1]*3e5,vEp[2],vEp[3]);
-        for (int i=1; i<=vDindex; i++)
+        for (int i=0; i<=vDindex; i++)
             printf("   a%d = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",i,vLa[i][0],vLa[i][1],vLa[i][2],vLa[i][3]);
     }
     

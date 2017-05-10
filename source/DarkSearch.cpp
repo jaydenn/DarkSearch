@@ -45,7 +45,8 @@ int main(int argc, char *argv[])
      
         //get sampling parameters from file
         int mode = getSamplingPars( &pL, filename); 
-        pL.printPars();
+        //pL.printPars();
+        
         if ( mode < 0 ) 
         {
             std::cout << "Problem with config file, aborting" << std::endl;
@@ -53,11 +54,11 @@ int main(int argc, char *argv[])
         }
         
         // set some MultiNest sampling parameters
-        int pWrap[pL.p.nPar];              // which parameters to have periodic boundary conditions?
+        int pWrap[pL.p.nDim];              // which parameters to have periodic boundary conditions?
         int seed = -1;			   	            // random no. generator seed, if < 0 then take the seed from system clock
         int simSeed;
-        int ndims = pL.p.nPar;                                // number of parameters in the reconstruction
-        int npar  = pL.p.nPar;                             // global number of WIMP parameters
+        int ndims = pL.p.nDim;                                // number of parameters in the reconstruction
+        int npar  = pL.p.nPar;                                // global number of WIMP parameters
         double logZero = -DBL_MAX;							  // points with loglike < logZero will be ignored by MultiNest
         int initMPI = 0;								      // initialize MPI routines?, relevant only if compiling with MPI
         int outfile = 1;								      // write output files?

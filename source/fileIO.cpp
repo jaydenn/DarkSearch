@@ -96,6 +96,7 @@ int getSamplingPars(parameterList *pL, char *filename)
     ret = fgets(temp,200,input);
 
     char prior[10];
+    pL->p.nDim = 0;
     pL->p.nPar = 0;
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
@@ -109,7 +110,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             pL->p.Mx[2]=priorIndex(prior); 
             if(pL->p.Mx[2]!=3)
             {
-                pL->p.Mx[3]= (double)pL->p.nPar++;
+                pL->p.Mx[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.Mx[3]],"Mx");
             }
         }
@@ -120,7 +121,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             pL->p.spin[2]=priorIndex(prior); 
             if(pL->p.spin[2]!=3)
             {
-                pL->p.spin[3]= (double)pL->p.nPar++;
+                pL->p.spin[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.spin[3]],"spin");
             }
         }
@@ -134,7 +135,7 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.coeffn[ind][2]=priorIndex(prior);
                 if(pL->p.coeffn[ind][2]!=3)
                 {
-                    pL->p.coeffn[ind][3]= (double)pL->p.nPar++;
+                    pL->p.coeffn[ind][3]= (double)pL->p.nDim++;
                     sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%d",ind);
                 }
                 //proton set to match neutron
@@ -149,7 +150,7 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.coeffn[ind][2]=priorIndex(prior);
                 if(pL->p.coeffn[ind][2]!=3)
                 {
-                    pL->p.coeffn[ind][3]= (double)pL->p.nPar++;
+                    pL->p.coeffn[ind][3]= (double)pL->p.nDim++;
                     sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
                 }
                 
@@ -158,7 +159,7 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.coeffp[ind][2]=priorIndex(prior);
                 if(pL->p.coeffp[ind][2]!=3)
                 {
-                    pL->p.coeffp[ind][3]= (double)pL->p.nPar++;
+                    pL->p.coeffp[ind][3]= (double)pL->p.nDim++;
                     sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
                 }
             }
@@ -169,7 +170,7 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.coeffp[ind][2]=priorIndex(prior);
                 if(pL->p.coeffp[ind][2]!=3)
                 {
-                    pL->p.coeffp[ind][3]= (double)pL->p.nPar++;
+                    pL->p.coeffp[ind][3]= (double)pL->p.nDim++;
                     sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
                 }
                 //not scanning neutron
@@ -184,7 +185,7 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.coeffn[ind][2]=priorIndex(prior);
                 if(pL->p.coeffn[ind][2]!=3)
                 {
-                    pL->p.coeffn[ind][3]= (double)pL->p.nPar++;
+                    pL->p.coeffn[ind][3]= (double)pL->p.nDim++;
                     sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
                 }
                 //proton
@@ -204,7 +205,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             pL->p.rho[2]=priorIndex(prior); 
             if(pL->p.rho[2]!=3)
             {
-                pL->p.rho[3]= (double)pL->p.nPar++;
+                pL->p.rho[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.rho[3]],"rho");
             }
         
@@ -217,7 +218,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             pL->p.v0[2]=priorIndex(prior); 
             if(pL->p.v0[2]!=3)
             {
-                pL->p.v0[3]= (double)pL->p.nPar++;
+                pL->p.v0[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.v0[3]],"v0");
             }
             pL->p.v0[0]=pL->p.v0[0]/3e5;
@@ -232,7 +233,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             pL->p.vesc[2]=priorIndex(prior); 
             if(pL->p.vesc[2]!=3)
             {
-                pL->p.vesc[3]= (double)pL->p.nPar++;
+                pL->p.vesc[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.vesc[3]],"vesc");
             }
             pL->p.vesc[0]=pL->p.vesc[0]/3e5;
@@ -246,7 +247,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             pL->p.vSp[2]=priorIndex(prior); 
             if(pL->p.vSp[2]!=3)
             {
-                pL->p.vSp[3]= (double)pL->p.nPar++;
+                pL->p.vSp[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.vSp[3]],"vSp");
             }
             pL->p.vSp[0]=pL->p.vSp[0]/3e5;
@@ -259,7 +260,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             pL->p.vEp[2]=priorIndex(prior); 
             if(pL->p.vEp[2]!=3)
             {
-                pL->p.vEp[3]= (double)pL->p.nPar++;
+                pL->p.vEp[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.vEp[3]],"vSp");
             }
             pL->p.vEp[0]=pL->p.vEp[0]/3e5;
@@ -279,17 +280,21 @@ int getSamplingPars(parameterList *pL, char *filename)
                     pL->p.vLa[aInd][2]=priorIndex(prior); 
                     if(pL->p.vLa[aInd][2]!=3)
                     {
-                        pL->p.vLa[aInd][3] = (double)pL->p.nPar++;
+                        pL->p.vLa[aInd][3] = (double)pL->p.nDim++;
                         sprintf(pL->p.parNames[(int)pL->p.vLa[aInd][3]],"a%d",aInd);
                     }
                     aInd++;
                 }
             }
+            //include non-scanned parameter for a0 (which is fixed by normalization)
+            pL->p.vLa[aInd][3] = (double)pL->p.nPar++;
+            pL->p.vLa[aInd][2] = 3;
+            sprintf(pL->p.parNames[(int)pL->p.vLa[0][3]],"a0");
         }
         ret = fgets(temp,200,input);
        
     }
-
+    pL->p.nPar += pL->p.nDim;
 
     //Detector setup
     char name[20];
