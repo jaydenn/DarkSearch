@@ -287,7 +287,7 @@ int getSamplingPars(parameterList *pL, char *filename)
                 }
             }
             //include non-scanned parameter for a0 (which is fixed by normalization)
-            pL->p.vLa[aInd][3] = (double)pL->p.nDim++; pL->p.nPar++;
+            pL->p.vLa[aInd][3] = (double)pL->p.nDim+pL->p.nPar++;
             pL->p.vLa[aInd][2] = 3;
             sprintf(pL->p.parNames[(int)pL->p.vLa[0][3]],"a0");
         }
