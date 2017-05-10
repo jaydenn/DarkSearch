@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
         int pWrap[pL.p.nPar];              // which parameters to have periodic boundary conditions?
         int seed = -1;			   	            // random no. generator seed, if < 0 then take the seed from system clock
         int simSeed;
-        int ndims = pL.p.nPar;                                // any combination of mass, sigmaSI, sigmaSIvec, sigmaSD, delta, fn/fp, bn/bp, an/bp and rho_DM, v0, vesc 
-        int npar = 42;                                        // npar can be greater than ndim if you want to get other values from the loglike function output to file
+        int ndims = pL.p.nPar;                                // number of parameters in the reconstruction
+        int npar  = pL.p.nPar;                             // global number of WIMP parameters
         double logZero = -DBL_MAX;							  // points with loglike < logZero will be ignored by MultiNest
         int initMPI = 0;								      // initialize MPI routines?, relevant only if compiling with MPI
         int outfile = 1;								      // write output files?

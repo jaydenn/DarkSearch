@@ -13,6 +13,21 @@ using namespace std;
 
 void initialiseArray(char *filename);
 
+int priorIndex(char *prior)
+{
+    if(strcmp(prior,"log")==0)
+        return 0;
+    if(strcmp(prior,"linear")==0)
+        return 1;
+    if(strcmp(prior,"gaussian")==0)
+        return 2;
+    if(strcmp(prior,"none")==0) 
+        return 3;
+    else 
+        std::cout << "invalid prior type\n"; 
+    assert(0);
+}
+
 //gets sampling parameters from file
 int getSamplingPars(parameterList *pL, char *filename) 
 {
@@ -70,118 +85,112 @@ int getSamplingPars(parameterList *pL, char *filename)
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
     sscanf(temp,"%d",&(pL->p.vDindex));
+    if(pL->p.vDindex > 7)
+    {
+        std::cout << "maximum polynomial degree supported is 7\n";
+        pL->p.vDindex = 7;
+    }
     
     //search ranges and reconstruction parameters    
-    //this mess of code makes sure that each parameter can be read in any order and multinest will only loop over the ones with a prior, the others will still be output to file
+    //this mess of code makes sure that each parameter can be read in any order and multinest will only loop over the ones with a prior
     ret = fgets(temp,200,input);
 
     char prior[10];
-    pL->p.nPar = 42;
+    pL->p.nPar = 0;
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
-    int N = pL->p.nPar; 
-    int i = pL->p.nPar; 
     int ind = 1;
     
     while(temp[0]!='/')
     {
         if(temp[0]=='M')
         {
-            pL->p.Mx[3]= (double)N-i--; 
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.Mx[0]),&(pL->p.Mx[1]),prior);
-            if(strcmp(prior,"log")==0) pL->p.Mx[2]=0;
-            else if(strcmp(prior,"linear")==0) pL->p.Mx[2]=1;
-            else if(strcmp(prior,"gaussian")==0) pL->p.Mx[2]=2;
-            else if(strcmp(prior,"none")==0) { pL->p.Mx[2]=3; pL->p.nPar--; i++; pL->p.Mx[3]= pL->p.nPar;}
-            else {printf("invalid prior type for Mx\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.Mx[3]],"Mx");
+            pL->p.Mx[2]=priorIndex(prior); 
+            if(pL->p.Mx[2]!=3)
+            {
+                pL->p.Mx[3]= (double)pL->p.nPar++;
+                sprintf(pL->p.parNames[(int)pL->p.Mx[3]],"Mx");
+            }
         }
 
         if(temp[0]=='s')
         {
-            pL->p.spin[3]= (double)N-i--; 
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.spin[0]),&(pL->p.spin[1]),prior);
-            pL->p.spin[2]=1;
-            if(strcmp(prior,"none")==0) { pL->p.spin[2]=3; pL->p.nPar--; i++; pL->p.spin[3]= pL->p.nPar;}
-            sprintf(pL->p.parNames[(int)pL->p.spin[3]],"spin");
+            pL->p.spin[2]=priorIndex(prior); 
+            if(pL->p.spin[2]!=3)
+            {
+                pL->p.spin[3]= (double)pL->p.nPar++;
+                sprintf(pL->p.parNames[(int)pL->p.spin[3]],"spin");
+            }
         }
        
         while(temp[0]=='C')
         {
-            
-            if(pL->p.isv == 1)
+            if(pL->p.isv == 0) //no isospin violation
+            {
+                //neutron coupling will stand in for both
+                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
+                pL->p.coeffn[ind][2]=priorIndex(prior);
+                if(pL->p.coeffn[ind][2]!=3)
+                {
+                    pL->p.coeffn[ind][3]= (double)pL->p.nPar++;
+                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%d",ind);
+                }
+                //proton set to match neutron
+                pL->p.coeffp[ind][0]=pL->p.coeffn[ind][0];
+                pL->p.coeffp[ind][1]=pL->p.coeffn[ind][1];
+                pL->p.coeffp[ind][2]=3;
+            }
+            else if(pL->p.isv == 1) //isospin violation allowed
             {
                 //neutron
-                pL->p.coeffn[ind][3]= (double)N-i--; 
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
-                if(strcmp(prior,"log")==0) pL->p.coeffn[ind][2]=0;
-                else if(strcmp(prior,"linear")==0) pL->p.coeffn[ind][2]=1;
-                else if(strcmp(prior,"gaussian")==0) pL->p.coeffn[ind][2]=2; 
-                else if(strcmp(prior,"none")==0) { pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);   }
-                else {printf("invalid prior type for C%d\n",ind); assert(0);}
-                sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+                pL->p.coeffn[ind][2]=priorIndex(prior);
+                if(pL->p.coeffn[ind][2]!=3)
+                {
+                    pL->p.coeffn[ind][3]= (double)pL->p.nPar++;
+                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+                }
+                
                 //proton
-                pL->p.coeffp[ind][3]= (double)N-i--; 
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
-                if(strcmp(prior,"log")==0) pL->p.coeffp[ind][2]=0; 
-                else if(strcmp(prior,"linear")==0) pL->p.coeffp[ind][2]=1;
-                else if(strcmp(prior,"gaussian")==0) pL->p.coeffp[ind][2]=2;
-                else if(strcmp(prior,"none")==0) { pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar); }
-                else {printf("invalid prior type for C%d\n",ind); assert(0);}       
-                sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
+                pL->p.coeffp[ind][2]=priorIndex(prior);
+                if(pL->p.coeffp[ind][2]!=3)
+                {
+                    pL->p.coeffp[ind][3]= (double)pL->p.nPar++;
+                    sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
+                }
             }
-            else if(pL->p.isv == 0)
-            {
-                //neutron
-                pL->p.coeffn[ind][3]= (double)N-i--; 
-                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
-                if(strcmp(prior,"log")==0) pL->p.coeffn[ind][2]=0;
-                else if(strcmp(prior,"linear")==0) pL->p.coeffn[ind][2]=1;
-                else if(strcmp(prior,"gaussian")==0) pL->p.coeffn[ind][2]=2; 
-                else if(strcmp(prior,"none")==0) { pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);}
-                else {printf("invalid prior type for C%d\n",ind); assert(0);}
-                sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
-                //proton
-                pL->p.coeffp[ind][3]= (double)N-i--; 
-                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
-                //not scanning proton values 
-                pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar);
-                sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
-            }
-            else if(pL->p.isv == 2)
+            else if(pL->p.isv == 2) //proton only
             {
                 //proton
-                pL->p.coeffp[ind][3]= (double)N-i--; 
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
-                if(strcmp(prior,"log")==0) pL->p.coeffp[ind][2]=0;
-                else if(strcmp(prior,"linear")==0) pL->p.coeffp[ind][2]=1;
-                else if(strcmp(prior,"gaussian")==0) pL->p.coeffp[ind][2]=2; 
-                else if(strcmp(prior,"none")==0) { pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar);}
-                else {printf("invalid prior type for C%d\n",ind); assert(0);}
-                sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
+                pL->p.coeffp[ind][2]=priorIndex(prior);
+                if(pL->p.coeffp[ind][2]!=3)
+                {
+                    pL->p.coeffp[ind][3]= (double)pL->p.nPar++;
+                    sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
+                }
                 //not scanning neutron
-                pL->p.coeffn[ind][3]= (double)N-i--; 
-                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
-                pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);
-                sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+                pL->p.coeffn[ind][0]=0;
+                pL->p.coeffn[ind][1]=0;
+                pL->p.coeffn[ind][2]=3;
             }
-            else if(pL->p.isv == 3)
+            else if(pL->p.isv == 3) //neutron only
             {
                 //neutron
-                pL->p.coeffn[ind][3]= (double)N-i--; 
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
-                if(strcmp(prior,"log")==0) pL->p.coeffn[ind][2]=0;
-                else if(strcmp(prior,"linear")==0) pL->p.coeffn[ind][2]=1;
-                else if(strcmp(prior,"gaussian")==0) pL->p.coeffn[ind][2]=2; 
-                else if(strcmp(prior,"none")==0) { pL->p.coeffn[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffn[ind][3]= (pL->p.nPar);}
-                else {printf("invalid prior type for C%d\n",ind); assert(0);}
-                sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+                pL->p.coeffn[ind][2]=priorIndex(prior);
+                if(pL->p.coeffn[ind][2]!=3)
+                {
+                    pL->p.coeffn[ind][3]= (double)pL->p.nPar++;
+                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+                }
                 //proton
-                pL->p.coeffp[ind][3]= (double)N-i--; 
-                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
-                //not scanning proton values 
-                pL->p.coeffp[ind][2]=3; pL->p.nPar--; i++; pL->p.coeffp[ind][3]= (pL->p.nPar);
-                sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
+                pL->p.coeffp[ind][0]=0;
+                pL->p.coeffp[ind][1]=0;
+                pL->p.coeffp[ind][2]=3;
             }
             ret = fgets(temp,200,input);
             ind++;
@@ -191,83 +200,91 @@ int getSamplingPars(parameterList *pL, char *filename)
      
         if(temp[0]=='r')
         {
-            pL->p.rho[3]= N-i--; 
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.rho[0]),&(pL->p.rho[1]),prior);
-            if(prior[2]=='g') pL->p.rho[2]=0;
-            else if(prior[1]=='i') pL->p.rho[2]=1;
-            else if(prior[0]=='g') pL->p.rho[2]=2;
-            else if(prior[0]=='n') { pL->p.rho[2]=3; pL->p.nPar--; i++; pL->p.rho[3]= pL->p.nPar;}
-            else {printf("invalid prior type for rho\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.rho[3]],"rho");
+            pL->p.rho[2]=priorIndex(prior); 
+            if(pL->p.rho[2]!=3)
+            {
+                pL->p.rho[3]= (double)pL->p.nPar++;
+                sprintf(pL->p.parNames[(int)pL->p.rho[3]],"rho");
+            }
+        
         }
 
         if(temp[0]=='v' && temp[1]=='0')
         {
-            pL->p.v0[3]= N-i--; 
+        
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.v0[0]),&(pL->p.v0[1]),prior);
+            pL->p.v0[2]=priorIndex(prior); 
+            if(pL->p.v0[2]!=3)
+            {
+                pL->p.v0[3]= (double)pL->p.nPar++;
+                sprintf(pL->p.parNames[(int)pL->p.v0[3]],"v0");
+            }
             pL->p.v0[0]=pL->p.v0[0]/3e5;
             pL->p.v0[1]=pL->p.v0[1]/3e5;
-            if(prior[2]=='g') pL->p.v0[2]=0;
-            else if(prior[1]=='i') pL->p.v0[2]=1;
-            else if(prior[0]=='g') pL->p.v0[2]=2;
-            else if(prior[0]=='n') { pL->p.v0[2]=3; pL->p.nPar--; i++; pL->p.v0[3]= pL->p.nPar;}
-            else {printf("invalid prior type for v0\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.v0[3]],"v0");
+            
         }
         
         if(temp[3]=='c')
         {
-            pL->p.vesc[3]= N-i--; 
+              
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.vesc[0]),&(pL->p.vesc[1]),prior);
+            pL->p.vesc[2]=priorIndex(prior); 
+            if(pL->p.vesc[2]!=3)
+            {
+                pL->p.vesc[3]= (double)pL->p.nPar++;
+                sprintf(pL->p.parNames[(int)pL->p.vesc[3]],"vesc");
+            }
             pL->p.vesc[0]=pL->p.vesc[0]/3e5;
             pL->p.vesc[1]=pL->p.vesc[1]/3e5;
-            if(prior[2]=='g') pL->p.vesc[2]=0;
-            else if(prior[1]=='i') pL->p.vesc[2]=1;
-            else if(prior[0]=='g') pL->p.vesc[2]=2; 
-            else if(prior[0]=='n') { pL->p.vesc[2]=3; pL->p.nPar--; i++; pL->p.vesc[3]= pL->p.nPar;}
-            else {printf("invalid prior type for vesc\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.vesc[3]],"vesc");
+            
         }
         
         if(temp[0]=='v'&&temp[1]=='S')
         {
-            pL->p.vSp[3]= N-i--; 
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.vSp[0]),&(pL->p.vSp[1]),prior);
+            pL->p.vSp[2]=priorIndex(prior); 
+            if(pL->p.vSp[2]!=3)
+            {
+                pL->p.vSp[3]= (double)pL->p.nPar++;
+                sprintf(pL->p.parNames[(int)pL->p.vSp[3]],"vSp");
+            }
             pL->p.vSp[0]=pL->p.vSp[0]/3e5;
             pL->p.vSp[1]=pL->p.vSp[1]/3e5;
-            if(prior[2]=='g') pL->p.vSp[2]=0;
-            else if(prior[1]=='i') pL->p.vSp[2]=1;
-            else if(prior[0]=='g') pL->p.vSp[2]=2; 
-            else if(prior[0]=='n') { pL->p.vSp[2]=3; pL->p.nPar--; i++; pL->p.vSp[3]= pL->p.nPar;}
-            else {printf("invalid prior type for vSp\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.vSp[3]],"vSp");
         }
         
         if(temp[0]=='v'&&temp[1]=='E')
         {
-            pL->p.vEp[3]= N-i--; 
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.vEp[0]),&(pL->p.vEp[1]),prior);
+            pL->p.vEp[2]=priorIndex(prior); 
+            if(pL->p.vEp[2]!=3)
+            {
+                pL->p.vEp[3]= (double)pL->p.nPar++;
+                sprintf(pL->p.parNames[(int)pL->p.vEp[3]],"vSp");
+            }
             pL->p.vEp[0]=pL->p.vEp[0]/3e5;
             pL->p.vEp[1]=pL->p.vEp[1]/3e5;
-            if(prior[2]=='g') pL->p.vEp[2]=0;
-            else if(prior[1]=='i') pL->p.vEp[2]=1;
-            else if(prior[0]=='g') pL->p.vEp[2]=2; 
-            else if(prior[0]=='n') { pL->p.vEp[2]=3; pL->p.nPar--; i++; pL->p.vEp[3]= pL->p.nPar;}
-            else {printf("invalid prior type for vEp\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.vEp[3]],"vEp");
         }
         
         if(temp[0]=='a')
         {
-            int aInd = temp[1] - '0';
-            pL->p.vLa[aInd][3]= N-i--; 
-            sscanf(temp,"%*s %lf %lf %s",&(pL->p.vLa[aInd][0]),&(pL->p.vLa[aInd][1]),prior);
-            if(prior[2]=='g') pL->p.vLa[aInd][2]=0;
-            else if(prior[1]=='i') pL->p.vLa[aInd][2]=1;
-            else if(prior[0]=='g') pL->p.vLa[aInd][2]=2; 
-            else if(prior[0]=='n') { pL->p.vLa[aInd][2]=3; pL->p.nPar--; i++; pL->p.vLa[aInd][3]= pL->p.nPar;}
-            else {printf("invalid prior type for a\n"); assert(0);}
-            sprintf(pL->p.parNames[(int)pL->p.vLa[aInd][3]],"a%d",aInd);
+            
+            //set same for all a's
+            int aInd=1;
+            if( pL->p.vDindex > 1 )
+            {
+                while (aInd <= pL->p.vDindex)
+                {
+                    sscanf(temp,"%*s %lf %lf %s",&(pL->p.vLa[aInd][0]),&(pL->p.vLa[aInd][1]),prior);
+                    pL->p.vLa[aInd][2]=priorIndex(prior); 
+                    if(pL->p.vLa[aInd][2]!=3)
+                    {
+                        pL->p.vLa[aInd][3] = (double)pL->p.nPar++;
+                        sprintf(pL->p.parNames[(int)pL->p.vLa[aInd][3]],"a%d",aInd);
+                    }
+                    aInd++;
+                }
+            }
         }
         ret = fgets(temp,200,input);
        

@@ -22,17 +22,13 @@ double logPoisson(double obs, double expect)
 double scale(double *ranPar, double x, double y, int prior)
 { 
 	if( prior == 0 ) //log prior
-    {
         *ranPar = pow( 10, *ranPar * ( log10(y) - log10(x) ) + log10(x) );    
-    }
     else if( prior == 1 ) //linear prior
         *ranPar = *ranPar * (y - x) +  x; 
     else if( prior == 2 ) //gaussian prior
-    {
         *ranPar = x + gsl_cdf_gaussian_Pinv(*ranPar, y);  
-    }
     else if( prior == 3 ) //no prior
-        *ranPar = x;
+        return x;
 
     return *ranPar;
 }
@@ -41,23 +37,28 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
 {
     
 	W->Mx   = scale(&Cube[(int)P.Mx[3]],  P.Mx[0],  P.Mx[1],  (int)P.Mx[2]);
-    
-    if ( Cube[(int)P.spin[3]] < 0.6666 )
-    {
-        if ( Cube[(int)P.spin[3]] < 0.3333 )
-            W->spin = Cube[(int)P.spin[3]] = 0;
-        else
-            W->spin = Cube[(int)P.spin[3]] = 0.5;
-    }
+
+    if( ((int) P.spin[2])==3)
+        W->spin = P.spin[0];    
     else
-        W->spin = Cube[(int)P.spin[3]] = 1;
+    {
+        if ( Cube[(int)P.spin[3]] < 0.6666 )
+        {
+            if ( Cube[(int)P.spin[3]] < 0.3333 )
+                W->spin = Cube[(int)P.spin[3]] = 0;
+            else
+                W->spin = Cube[(int)P.spin[3]] = 0.5;
+        }
+        else
+            W->spin = Cube[(int)P.spin[3]] = 1;
+    }
     
     for(int i=1;i<16;i++)
     {
         if(P.isv == 0) //proton and neutron values fixed to eachother
         {
             W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
-            W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]],   W->coeffn[i],              0,  3);
+            W->coeffp[i] = W->coeffn[i];
         }
         else if (P.isv == 1) //proton and neutron values allowed to be different
         {
@@ -66,13 +67,13 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
         }
         else if (P.isv == 2) //proton scanned, neutron set to zero
         {
-            W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]],              0,              0,  3);
+            W->coeffn[i] = 0;
             W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]], P.coeffp[i][0], P.coeffp[i][1], (int)P.coeffp[i][2]);
         }
         else if (P.isv == 3) //neutron scanned, proton set to zero
         {
             W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
-            W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]],              0,              0,  3);
+            W->coeffp[i] = 0;
         }
     }
        
@@ -80,17 +81,17 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
 
     W->vDindex=P.vDindex;
     
-    if(P.vDindex==2) //if using Legendre poly for velocity
+    if(P.vDindex>1) //if using polynomials for velocity dist
     {
-        for(int i=0;i<5;i++)
+        for(int i=1;i<=P.vDindex;i++)
             W->vLa[i] = scale(&Cube[(int)P.vLa[i][3]],  P.vLa[i][0],  P.vLa[i][1],  (int)P.vLa[i][2]);
     }
     else
     {
-        W->v0   = scale(&Cube[(int)P.v0[3]],  P.v0[0],  P.v0[1],  (int)P.v0[2]);
-        W->vesc = scale(&Cube[(int)P.vesc[3]],P.vesc[0],P.vesc[1],(int)P.vesc[2]);
-        W->vSp  = scale(&Cube[(int)P.vSp[3]],P.vSp[0],P.vSp[1],(int)P.vSp[2]);
-        W->vEp  = scale(&Cube[(int)P.vEp[3]],P.vEp[0],P.vEp[1],(int)P.vEp[2]);
+        W->v0   = scale(&Cube[(int)P.v0[3]], P.v0[0],  P.v0[1],  (int)P.v0[2]);
+        W->vesc = scale(&Cube[(int)P.vesc[3]], P.vesc[0],P.vesc[1],(int)P.vesc[2]);
+        W->vSp  = scale(&Cube[(int)P.vSp[3]], P.vSp[0],P.vSp[1],(int)P.vSp[2]);
+        W->vEp  = scale(&Cube[(int)P.vEp[3]], P.vEp[0],P.vEp[1],(int)P.vEp[2]);
     }
 }
 
