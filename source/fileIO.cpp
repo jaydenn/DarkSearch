@@ -294,7 +294,8 @@ int getSamplingPars(parameterList *pL, char *filename)
         ret = fgets(temp,200,input);
        
     }
-
+    pL->p.nPar+=pL->p.nDim;
+    
     //Detector setup
     char name[20];
     double exp;
