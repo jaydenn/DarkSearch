@@ -175,6 +175,7 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     {
         lnew = logLikelihood( &Wcube, pL->detectors, pL->ndet, 1);
     }
+    Cube[(int)pL->p.vLa[0][3]] = Wcube.vLa[0];
     
 }
 
