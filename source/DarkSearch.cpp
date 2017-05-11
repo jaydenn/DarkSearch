@@ -11,6 +11,7 @@
 */
 
 #include "DarkSearch.h"
+#include "velDist.h"
 
 int main(int argc, char *argv[])
 {	
