@@ -39,7 +39,7 @@ double fpoly(double v, double *a, int N)
     //gsl_sf_legendre_Pl_array(N, 2*v/VMAX - 1, Ps);
     //else
     chebyshev_array(N, 2*v/VMAX - 1, Ps);
-
+    
     for( int i=0; i <= N; i++)
         sum -= a[i]*Ps[i];
 
@@ -82,6 +82,9 @@ public:
 double G(double v0, double ve, double vesc, double vmin, int index, double *a)
 {
     
+    if ( vmin > VMAX )
+        return 0;
+    
     if ( index == 0 )
         return ( erf( (ve - vmin) / v0 ) + erf( (ve + vmin) / v0 ) ) / (2*ve);
          
@@ -122,7 +125,9 @@ double G(double v0, double ve, double vesc, double vmin, int index, double *a)
 
 double Gsq(double v0, double ve, double vesc, double vmin, int index, double *a)
 {
-
+     if ( vmin > VMAX )
+        return 0;
+    
     if ( index == 0 )
         return (-((vmin/v0 - ve/v0)/exp(pow(vmin/v0 + ve/v0,2))) + (vmin/v0 + ve/v0)/exp(pow(-vmin/v0 + ve/v0,2)))/(2.*sqrt(M_PI)*ve/v0) + ((1 + 2*pow(ve/v0,2))*(-erf(vmin/v0 - ve/v0) + erf(vmin/v0 + ve/v0)))/(2.*ve);
         
