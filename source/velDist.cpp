@@ -2,8 +2,14 @@
 #include <iostream>
 #include <gsl/gsl_sf_legendre.h>
 #include "DEIntegrator.h"
+#include <gsl/gsl_spline.h>
 
 #define VMAX 0.0033333
+
+gsl_spline *FonVspline = gsl_spline_alloc(gsl_interp_linear,1000);
+gsl_spline *FxVspline = gsl_spline_alloc(gsl_interp_linear,1000);
+gsl_interp_accel *FonVaccel = gsl_interp_accel_alloc();
+gsl_interp_accel *FxVaccel = gsl_interp_accel_alloc();
 
 void chebyshev_array(int i, double x, double *result)
 {
@@ -79,6 +85,27 @@ public:
     }
 };
 
+void initG(int index, double *a)
+{
+
+        //velocityIntegralonV vInt;
+        //vInt.a = a;
+        //vInt.N = index;
+        
+        double v[1000];
+        double FonVvals[1000];
+        double FxVvals[1000];
+        for(int i=0; i<1000; i++)
+        {
+            v[i] = (double) i/2.99e5;
+            FonVvals[i] = fpoly( v[i], a, index)/v[i];
+            FxVvals[i] = FonVvals[i]*v[i]*v[i];//DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin[i],VMAX,1e-6);
+        }
+        gsl_spline_init(FonVspline,v,FonVvals,1000);
+        gsl_spline_init(FxVspline,v,FxVvals,1000);
+            
+}
+
 double G(double v0, double ve, double vesc, double vmin, int index, double *a)
 {
     
@@ -99,12 +126,13 @@ double G(double v0, double ve, double vesc, double vmin, int index, double *a)
     
         return x/v0;
     }
-        
+    
+           
     if ( index > 1 && index < 8 )
     {
-        velocityIntegralonV vInt;
-        vInt.a = a;
-        vInt.N = index;
+        //velocityIntegralonV vInt;
+        //vInt.a = a;
+        //vInt.N = index;
         
         if(a[0]==0)
         {
@@ -113,8 +141,11 @@ double G(double v0, double ve, double vesc, double vmin, int index, double *a)
             vIntN.N = index;
             double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,VMAX,1e-6);
             a[0] = log(norm);
+            initG(index,a);
         }
-        return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,VMAX,1e-6);
+        return gsl_spline_eval_integ(FonVspline, vmin, VMAX, FonVaccel);
+        
+        //return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,VMAX,1e-6);
     }
     else        
     {
@@ -144,18 +175,21 @@ double Gsq(double v0, double ve, double vesc, double vmin, int index, double *a)
         
     if ( index > 1 && index < 8 )
     {
-        velocityIntegralvSq vInt;
-        vInt.a = a;
-        vInt.N = index;
+        //velocityIntegralvSq vInt;
+        //vInt.a = a;
+        //vInt.N = index;
         
         if(a[0]==0)
         {
             velocityIntegralNorm vIntN;
             vIntN.a = a;
             vIntN.N = index;
-            a[0] = log(DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,VMAX,1e-6));
+            double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,VMAX,1e-6);
+            a[0] = log(norm);
         }
-        return DEIntegrator<velocityIntegralvSq>::Integrate(vInt,vmin,VMAX,1e-6);
+        return gsl_spline_eval_integ(FxVspline, vmin, VMAX, FxVaccel);
+        
+        //return DEIntegrator<velocityIntegralvSq>::Integrate(vInt,vmin,VMAX,1e-6);
     }
     else
     {
