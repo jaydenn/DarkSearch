@@ -76,7 +76,8 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
             W->coeffp[i] = 0;
         }
     }
-       
+    W->delta  = scale(&Cube[(int)P.delta[3]], P.delta[0], P.delta[1], (int)P.delta[2]);
+   
     W->rho  = scale(&Cube[(int)P.rho[3]], P.rho[0], P.rho[1], (int)P.rho[2]);
 
     W->vDindex=P.vDindex;
