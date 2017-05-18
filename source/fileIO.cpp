@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "parameterStruct.h"
 #include "detectors.h"
+#include "velDist.h"
 
 using namespace std;
 
@@ -198,7 +199,20 @@ int getSamplingPars(parameterList *pL, char *filename)
             
         }
         
-     
+        
+        if(temp[0]=='d')
+        {
+            sscanf(temp,"%*s %lf %lf %s",&(pL->p.delta[0]),&(pL->p.delta[1]),prior);
+            pL->p.delta[2]=priorIndex(prior); 
+            if(pL->p.delta[2]!=3)
+            {
+                pL->p.delta[3]= (double)pL->p.nDim++;
+                sprintf(pL->p.parNames[(int)pL->p.delta[3]],"delta");
+            }
+        
+        }
+        
+        
         if(temp[0]=='r')
         {
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.rho[0]),&(pL->p.rho[1]),prior);
@@ -329,6 +343,8 @@ int getSamplingPars(parameterList *pL, char *filename)
             ret = fgets(temp,200,input);
             ind++;
         }
+        sscanf(temp,"%*s %lf",&(pL->w.delta)); 
+        ret = fgets(temp,200,input);
         //astro parameters
         sscanf(temp,"%*s %lf",&(pL->w.rho)); 
         ret = fgets(temp,200,input);
@@ -401,13 +417,81 @@ int writeSamplingOutput(parameterList pL)
     }
     
     std::string line;
+    double prob;
+    double totProb = 0;
+    double a[8];
+    double Gvmin[50][2];
+    double gvmin;
+    bool first = 1;
+    
     while(std::getline(infile,line))
         outfile << line << std::endl;
+
     
     outfile.close();
     infile.close();
-    
     unlink(filename);
+
+    return 0;
+}
+
+int writeVelData(parameterList pL)
+{
+    char filename[100];
+    std::ifstream infile;        
+    
+    sprintf(filename,"%s.txt",pL.root);
+    infile.open(filename,ios::in);
+    if(infile==NULL)
+    {
+        std::cout << "couldn't open Multinest output file" << std::endl;
+        return 0;
+    }
+    
+    std::string line;
+    double prob;
+    double totProb = 0;
+    double a[8];
+    double Gvmin[50][2];
+    double Fv[50][2];
+    double gvmin,fv;
+    bool first = 1;
+    
+    while(std::getline(infile,line))
+    {
+        sscanf(line.c_str(),"%lf %*lf %*lf %*lf %lf %lf %lf %lf %lf",&prob,&a[1],&a[2],&a[3],&a[4],&a[0]);
+        totProb+=prob;
+        if( totProb > 0.32 )
+        {
+            std::cout << totProb << std::endl;
+            for (int j=0; j<50; j++)
+            {
+                gvmin = G(0,0,0,(double)20*j/3e5,4,a);
+                fv = fpoly( (double)20*j/3e5, a, 4);
+                if (fv < Fv[j][0] || first) 
+                    Fv[j][0] = fv;
+                if (fv > Fv[j][1] || first) 
+                    Fv[j][1] = fv;
+                if (gvmin < Gvmin[j][0] || first)
+                    Gvmin[j][0] = gvmin;
+                if (gvmin > Gvmin[j][1] || first)
+                {
+                    Gvmin[j][1] = gvmin;
+                    first = 0;
+                }    
+            }
+        }
+    }
+    infile.close();
+    
+    std::ofstream vOut;
+        
+    sprintf(filename,"%svelDist.dat",pL.root);
+    vOut.open(filename,ios::out);
+    for (int j=0; j<50; j++)
+        vOut << (double)20*j/3e5 << " " <<  Fv[j][0] << " " <<  Fv[j][1] << " " <<  Gvmin[j][0] << " "  << Gvmin[j][1] << std::endl;
+    
+    vOut.close();
     
     return 0;
 }

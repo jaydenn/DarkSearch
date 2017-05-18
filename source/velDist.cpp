@@ -97,9 +97,10 @@ void initG(int index, double *a)
         double FxVvals[1000];
         for(int i=0; i<1000; i++)
         {
-            v[i] = (double) i/2.99e5;
+            v[i] = (double) i/2.9e5;
             FonVvals[i] = fpoly( v[i], a, index)/v[i];
             FxVvals[i] = FonVvals[i]*v[i]*v[i];//DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin[i],VMAX,1e-6);
+            //std::cout << v[i] << " " << FxVvals[i] << " " << FonVvals[i] << "\n";
         }
         gsl_spline_init(FonVspline,v,FonVvals,1000);
         gsl_spline_init(FxVspline,v,FxVvals,1000);
@@ -145,7 +146,7 @@ double G(double v0, double ve, double vesc, double vmin, int index, double *a)
         }
         return gsl_spline_eval_integ(FonVspline, vmin, VMAX, FonVaccel);
         
-        //return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,VMAX,1e-6);
+        //  return DEIntegrator<velocityIntegralonV>::Integrate(vInt,vmin,VMAX,1e-6);
     }
     else        
     {
@@ -186,6 +187,7 @@ double Gsq(double v0, double ve, double vesc, double vmin, int index, double *a)
             vIntN.N = index;
             double norm = DEIntegrator<velocityIntegralNorm>::Integrate(vIntN,0,VMAX,1e-6);
             a[0] = log(norm);
+            initG(index,a);
         }
         return gsl_spline_eval_integ(FxVspline, vmin, VMAX, FxVaccel);
         

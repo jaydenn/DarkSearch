@@ -9,6 +9,7 @@ struct reconstructionParameters {
     double spin[4];
     double coeffn[16][4];
     double coeffp[16][4];
+    double delta[4];
     double rho[4];
     double v0[4];
     double vesc[4];
@@ -25,6 +26,7 @@ struct reconstructionParameters {
     {
         printf("%d reconstruction parameters:\n",nDim);
         printf("   %.0f < Mx  < %.0f  prior: %.0f, index: %.0f\n",Mx[0],Mx[1],Mx[2],Mx[3]);
+        printf("   %.0f < delta  < %.0f  prior: %.0f, index: %.0f\n",delta[0],delta[1],delta[2],delta[3]);
         printf("   rho = %.2f +\\- %.2f  prior: %.0f, index: %.0f\n",rho[0],rho[1],rho[2],rho[3]);        
         printf("   reconstruct using vDist: %d\n",vDindex);
         printf("   v0  = %.0f +\\- %.0f  prior: %.0f, index: %.0f\n",v0[0]*3e5,v0[1]*3e5,v0[2],v0[3]);
@@ -42,6 +44,7 @@ struct WIMPpars {
     double spin; 
     double coeffp[16];
     double coeffn[16];
+    double delta;
     double rho;
     double v0;
     double vesc;
@@ -56,6 +59,7 @@ struct WIMPpars {
         printf("WIMP parameters:\n");
         printf("   Mx  = %.0f\n",Mx);
         printf("   spin= %.1f\n",spin);
+        printf("   delta=%.1f\n",delta);
         printf("   rho = %.2f\n",rho);        
         printf("   v0  = %E\n",v0);
         printf("   vesc= %E\n",vesc);
