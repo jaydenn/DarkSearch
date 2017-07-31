@@ -81,7 +81,7 @@ int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
     {
         Er_min = (double)i*det->binW+det->ErL;
         Er_max = (double)(i+1)*det->binW+det->ErL;
-         
+        
         background = b * intBgRate(*det, Er_min, Er_max) * det->exposure;
         signal = intWIMPrate( Er_min, Er_max, W, det) * det->exposure; 
         
@@ -92,10 +92,6 @@ int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
         
         det->nEvents += det->binnedData[i];
     }
-    
-    //don't loop over empty bins, it seems to skew the likelihood function if you do 
-    //while(det->binnedData[det->nbins -1]<1 && det->nbins>1)
-    //    det->nbins--;
     
     gsl_rng_free(r);
     return 0;

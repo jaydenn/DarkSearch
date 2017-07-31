@@ -4,10 +4,12 @@
 #include <math.h>
 #include <iostream>
 #include <gsl/gsl_sf.h>
+#include <gsl/gsl_randist.h>
 #include <gsl/gsl_cdf.h>
 #include "directDet.h"
 #include "detectors.h"
 #include "detectorFunctions.h"
+#include "velDist.h"
 
 //natural log of Poisson dist: gives more accurate values for small probabilities (because of machine precision)
 double logPoisson(double obs, double expect)
@@ -168,6 +170,12 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     WIMPpars Wcube;
 	scaleParams( Cube, pL->p, &Wcube);
 	
+    Wcube.vLa[0] = 0;
+    Wcube.vLa[1] = 18;
+    Wcube.vLa[2] = 9.45;
+    Wcube.vLa[3] = 3.22;
+    Wcube.vLa[4] = 0.749;
+    
     if(pL->binlessL==1)
     {
         lnew = logLikelihoodBinless( &Wcube, pL->detectors, pL->ndet, 1);
@@ -180,3 +188,56 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     
 }
 
+//log likelihood for calculating priors for chebyshev polynomials
+void LogLikeVelPrior(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
+{
+    //get pointer in from MultiNest 
+    parameterList *pL = (parameterList *) pointer;
+    
+    //scale pars for this point in the parameter space
+    WIMPpars Wcube;
+	scaleParams( Cube, pL->p, &Wcube);
+	
+    double vmin, GMB, Gcheb;
+    double vmax = 0.0033333;
+    lnew=0;
+    
+    for (int i=0; i < 100; i++)
+    {
+        Cube[4+i] = G( Wcube.v0, Wcube.v0+Wcube.vSp+Wcube.vEp, Wcube.vesc, i*vmax/100.0, 1, Wcube.vLa);
+        //std::cout << Wcube.v0 << " " << Wcube.v0+Wcube.vSp+Wcube.vEp << " " <<  Wcube.vesc << " " << i*vmax/10.0 << " " << Cube[4+i] << std::endl;
+    }
+}
+
+//log likelihood for calculating priors for chebyshev polynomials
+void LogLikeVelPriorA(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
+{
+    //get pointer in from MultiNest 
+    parameterList *pL = (parameterList *) pointer;
+    
+    //scale pars for this point in the parameter space
+    WIMPpars Wcube;
+	scaleParams( Cube, pL->p, &Wcube);
+	
+    double vmin;
+    double vmax = 0.0023333;
+    lnew=0;
+    double sigma;
+    double GMB,Gcheb;
+    
+    //Wcube.printWIMPpars();
+    int Npoints = 20;
+    for (int i=0; i < Npoints; i++)
+    {
+        Gcheb = G( 220/3e5, (240)/3e5, 544/3e5, (double)i*vmax/Npoints, 4, Wcube.vLa);
+        GMB = G( 220/3e5, (240)/3e5, 544/3e5, (double)i*vmax/Npoints, 1, Wcube.vLa);
+        
+        sigma = 0.1+ GMB/10.0;//45*(1-tanh((5*i-40)/Npoints));
+        lnew += gsl_ran_gaussian_pdf(Gcheb-GMB,sigma);
+        Cube[ndim+1+i] = Gcheb;
+        //std::cout << gsl_ran_gaussian_pdf(GMB-Gcheb,sigma) << " " << GMB << " " << Gcheb << " " << sigma << std::endl;
+    }
+    Cube[ndim]= Wcube.vLa[0];
+    if( lnew != lnew)
+        lnew = -1e99;
+}

@@ -183,6 +183,26 @@ int main(int argc, char *argv[])
         return 0;
     }
     
+    //velocity integral prior
+    if(mode == 2)
+    {
+        
+        //ndims = 4;                                // number of parameters in the reconstruction
+        //npar  = 104;
+        
+        if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
+    
+        //  nestRun(               mmodal,                ceff,              nlive,            tol,            efr,ndims, nPar,nCdims,  maxModes,    updInt,          nullZ,     root, seed, pWrap,             feedback,                resume,       outfile,        initMPI, logZero,   loglike, dumper, context)
+        //nested::run((bool)pL.sampling[0],(bool)pL.sampling[1],(int)pL.sampling[2], pL.sampling[6], pL.sampling[5],ndims, npar, ndims,       100, updateInt, pL.sampling[7],  pL.root, seed, pWrap, (bool)pL.sampling[3], (bool)pL.sampling[4], (bool)outfile, (bool)initMPI, logZero, LogLikeVelPrior, dumper, pointer);
+        
+        
+        
+        ndims = pL.p.vDindex;                                // number of parameters in the reconstruction
+        npar += 20;    
+        nested::run((bool)pL.sampling[0],(bool)pL.sampling[1],(int)pL.sampling[2], pL.sampling[6], pL.sampling[5],ndims, npar, ndims,       100, updateInt, pL.sampling[7],  pL.root, seed, pWrap, (bool)pL.sampling[3], (bool)pL.sampling[4], (bool)outfile, (bool)initMPI, logZero, LogLikeVelPriorA, dumper, pointer);
+        return 0;
+    }
+    
     if( mode!=0 && mode!=1 )
     {
             std::cout << "error with mode parameter, check parameter file" << std::endl;
