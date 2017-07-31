@@ -47,7 +47,7 @@ int generateUnbinnedData(WIMPpars *W, detector *det, int b, int simSeed)
     return 0;
 }
 
-int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
+int generateBinnedData(WIMPpars *W, detector *det, int nbins, int b, int simSeed)
 {
 
     double Er_min, Er_max;
@@ -62,8 +62,7 @@ int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
     double signal = intWIMPrate( det->ErL, det->ErU, W, det) * det->exposure;
     double background = b * intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
 
-    //somewhat arbitrary choice of number of bins.. seems to work for exponential data
-    det->nbins = floor( sqrt(signal+background) )+1;
+    det->nbins = nbins;
 
     det->binW = ( det->ErU - det->ErL ) / ( (double) det->nbins);
     
@@ -89,13 +88,9 @@ int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed)
             det->binnedData[i] = gsl_ran_poisson(r,signal+background);
         else
             det->binnedData[i] = signal + background;            
-        
+
         det->nEvents += det->binnedData[i];
     }
-    
-    //don't loop over empty bins, it seems to skew the likelihood function if you do 
-    //while(det->binnedData[det->nbins -1]<1 && det->nbins>1)
-    //    det->nbins--;
     
     gsl_rng_free(r);
     return 0;

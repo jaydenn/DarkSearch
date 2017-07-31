@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
            	    err = generateUnbinnedData( &(pL.w), &(pL.detectors[i]), 1, simSeed);
            	}
            	else
-           	    err = generateBinnedData( &(pL.w), &(pL.detectors[i]), 1, simSeed);
+           	    err = generateBinnedData( &(pL.w), &(pL.detectors[i]), pL.nbins, 1, simSeed);
            	    
        	    if(err)
        	        return 1;
@@ -139,7 +139,12 @@ int main(int argc, char *argv[])
         
         //write parameters to file
         if(myrank==0)
+        {
+            //if (pL.p.vDindex>1) //placeholder for possible option switch
+            //    err = writeVelData(pL);
+                
             err = writeSamplingOutput(pL);
+        }
         
         if(err)
             std::cout << "problem writing output file" << std::endl;
@@ -158,24 +163,62 @@ int main(int argc, char *argv[])
         for(int j=0; j< pL.ndet; j++)
         {
             std::cout << setiosflags(std::ios::scientific) << setprecision(4);
-            if(pL.sampling[3])
-            {
-                std::cout << "recoil spectrum for detector  " << pL.detectors[j].name << std::endl; 
-                std::cout << "Er(keV)       WIMP-rate     Bg-rate      total-rate (/keV/t/year)" << std::endl;
-            }
           
-            for(int i=1;i<100;i++)
+            if ( pL.nbins == 0 )
             {
-                Er[i] = pL.detectors[j].ErL + (double)i*(pL.detectors[j].ErU-pL.detectors[j].ErL)/100;
-                signal[i] = diffWIMPrate(Er[i], &(pL.w), &(pL.detectors[j])); 
-                background[i] = diffBgRate(pL.detectors[j],Er[i]);
-               
                 if(pL.sampling[3])
-                    std::cout << Er[i] << "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
+                {
+                    std::cout << "recoil spectrum for detector  " << pL.detectors[j].name << std::endl; 
+                    std::cout << "Er(keV)       WIMP-rate     Bg-rate      total-rate (/keV/t/year)" << std::endl;
+                }
+                
+                for(int i=1;i<100;i++)
+                {
+                    Er[i] = pL.detectors[j].ErL + (double)i*(pL.detectors[j].ErU-pL.detectors[j].ErL)/100;
+                    
+                    signal[i]     = diffWIMPrate(Er[i], &(pL.w), &(pL.detectors[j])); 
+                    background[i] = diffBgRate(pL.detectors[j],Er[i]);
+                    
+                    if(pL.sampling[3])
+                        std::cout << Er[i] << "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
+                }
+                           
+                err = writeRateOutput(pL,j,Er,signal,background,sizeData);
+                
             }
-                       
-            err = writeRateOutput(pL,j,Er,signal,background,sizeData);
-        
+            else
+            {
+            
+                if(pL.sampling[3])
+                {
+                    std::cout << "Binned events for detector  " << pL.detectors[j].name << std::endl; 
+                    std::cout << "Er(keV)       WIMP-events      Bg-events      total" << std::endl;
+                }
+                
+                pL.detectors[j].binW = ( pL.detectors[j].ErU - pL.detectors[j].ErL ) / ( (double) pL.nbins);
+                double Er_min,Er_max;
+                
+                for(int i=0; i<pL.nbins; i++)
+                {
+                    Er_min = (double)i*pL.detectors[j].binW+pL.detectors[j].ErL;
+                    Er_max = (double)(i+1)*pL.detectors[j].binW+pL.detectors[j].ErL;
+                    
+                    Er[i] = Er_min+pL.detectors[j].binW/2.0;
+                    background[i] = intBgRate( pL.detectors[j], Er_min, Er_max) * pL.detectors[j].exposure;
+                    signal[i]     = intWIMPrate( Er_min, Er_max, &(pL.w), &(pL.detectors[j])) * pL.detectors[j].exposure; 
+                    
+                    if( pL.w.asimov == 1)
+                    {
+                        signal[i] = gsl_ran_poisson(r,signal[i]);
+                        background[i] = gsl_ran_poisson(r,background[i]);
+                    }
+                    if(pL.sampling[3])
+                        std::cout << Er[i] << "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
+                }
+                
+                 err = writeRateOutput(pL,j,Er,signal,background,pL.nbins);
+            }
+            
             if(err)
                 std::cout << "problem writing output file" << std::endl;
         

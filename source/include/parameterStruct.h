@@ -15,7 +15,7 @@ struct reconstructionParameters {
     double vesc[4];
     double vSp[4];
     double vEp[4];
-    char parNames[48][7];
+    char parNames[50][7];
     int isv;
     int nPar;     //number of WIMP parameters tracked
     int nDim;     //dimension of reconstruction
@@ -24,8 +24,14 @@ struct reconstructionParameters {
     
     void printReconstPars()
     {
+        
         printf("%d reconstruction parameters:\n",nDim);
         printf("   %.0f < Mx  < %.0f  prior: %.0f, index: %.0f\n",Mx[0],Mx[1],Mx[2],Mx[3]);
+        for (int i=1; i<=15; i++)
+        {
+            printf("   %.0f < c%d_n  < %.0f  prior: %.0f, index: %.0f\n",coeffn[i][0],i,coeffn[i][1],coeffn[i][2],coeffn[i][3]);
+            printf("   %.0f < c%d_p  < %.0f  prior: %.0f, index: %.0f\n",coeffp[i][0],i,coeffp[i][1],coeffp[i][2],coeffp[i][3]);
+        }
         printf("   %.0f < delta  < %.0f  prior: %.0f, index: %.0f\n",delta[0],delta[1],delta[2],delta[3]);
         printf("   rho = %.2f +\\- %.2f  prior: %.0f, index: %.0f\n",rho[0],rho[1],rho[2],rho[3]);        
         printf("   reconstruct using vDist: %d\n",vDindex);
@@ -80,6 +86,7 @@ struct parameterList {
     double sampling[11];
     char root[100];
     int binlessL;
+    int nbins;
     int ndet;
     
     reconstructionParameters p;
