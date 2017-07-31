@@ -170,12 +170,6 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     WIMPpars Wcube;
 	scaleParams( Cube, pL->p, &Wcube);
 	
-    Wcube.vLa[0] = 0;
-    Wcube.vLa[1] = 18;
-    Wcube.vLa[2] = 9.45;
-    Wcube.vLa[3] = 3.22;
-    Wcube.vLa[4] = 0.749;
-    
     if(pL->binlessL==1)
     {
         lnew = logLikelihoodBinless( &Wcube, pL->detectors, pL->ndet, 1);
