@@ -15,3 +15,5 @@ double logLikelihoodBinless( WIMPpars *W, detector *dets, int ndets, reconstruct
 //log likelihood function for passing the above to Multinest
 void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer);
 
+void LogLikeVelPrior(double *Cube, int &ndim, int &npars, double &lnew, long &pointer);
+void LogLikeVelPriorA(double *Cube, int &ndim, int &npars, double &lnew, long &pointer);
