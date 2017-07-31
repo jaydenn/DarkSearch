@@ -35,11 +35,11 @@ int getSamplingPars(parameterList *pL, char *filename)
 
     FILE* input;
     input = fopen(filename,"r");
-    if(input==NULL) 
+    /*if(input==NULL) 
     {
         printf("unable to open parameter file: %s\n",filename);
         return -1;	
-    }
+    }*/
   
     int mode;
     char *ret;
@@ -64,10 +64,14 @@ int getSamplingPars(parameterList *pL, char *filename)
         sscanf(temp,"%lf",&(pL->sampling[i]));
     }
   
-    //use a binless likelihood
+    //number of bins to use binless likelihood
     ret = fgets(temp,200,input);
-    sscanf(temp,"%d",&(pL->binlessL));
-    
+    sscanf(temp,"%d",&(pL->nbins));
+    if (pL->nbins == 0)
+        pL->binlessL = 1;
+    else
+        pL->binlessL = 0;
+        
     //include neutrino background
     int nuBg;
     ret = fgets(temp,200,input);
@@ -319,9 +323,13 @@ int getSamplingPars(parameterList *pL, char *filename)
     {
         sscanf(temp,"%s %lf", name, &exp);
         pL->detectors[pL->ndet].nuBg = nuBg;
-        
-        if(newDetector( &(pL->detectors[pL->ndet]), name, exp, pL->ndet))
-            return -1;
+        if(exp > 0)
+        {
+            if(newDetector( &(pL->detectors[pL->ndet]), name, exp, pL->ndet))
+                return -1;
+        }
+        else
+            std::cout << "detector " << name << " is being ignored\n";
             
         pL->ndet++;
         ret = fgets(temp,200,input);
@@ -375,11 +383,11 @@ int writeSamplingOutput(parameterList pL)
         
     sprintf(filename,"%ssim.dat",pL.root);
     outfile.open(filename,ios::out);
-    if(outfile==NULL)
+    /*if(outfile==NULL)
     {
         std::cout << "output file cannot be created" << std::endl;
         return 1;
-    }
+    }*/
     if(pL.w.asimov) 
         outfile << "// Monte-carlo simulation" << std::endl;            
     else
@@ -410,11 +418,11 @@ int writeSamplingOutput(parameterList pL)
     //copy over the Multinest output file
     sprintf(filename,"%s.txt",pL.root);
     infile.open(filename,ios::in);
-    if(infile==NULL)
+   /* if(infile==NULL)
     {
         std::cout << "couldn't open Multinest output file" << std::endl;
         return 0;
-    }
+    }*/
     
     std::string line;
     double prob;
@@ -442,11 +450,11 @@ int writeVelData(parameterList pL)
     
     sprintf(filename,"%s.txt",pL.root);
     infile.open(filename,ios::in);
-    if(infile==NULL)
+    /*if(infile==NULL)
     {
         std::cout << "couldn't open Multinest output file" << std::endl;
         return 0;
-    }
+    }*/
     
     std::string line;
     double prob;
@@ -503,11 +511,11 @@ int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, doub
     
     sprintf(filename,"%s%s_dRdE.dat",pL.root,pL.detectors[detj].name);
     outfile.open(filename,ios::out);
-    if(outfile==NULL)
+   /* if(outfile==NULL)
     {
         std::cout << "output file cannot be created" << std::endl;
         return 1;
-    }
+    } */
     
     //write out WIMP parameters
     outfile << "//recoil spectrum for detector "  << pL.detectors[detj].name << std::endl;

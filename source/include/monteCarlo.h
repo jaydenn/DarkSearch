@@ -2,7 +2,7 @@
     #include "parameterStruct.h"
 #endif
 
-int generateBinnedData(WIMPpars *W, detector *det, int b, int simSeed);
+int generateBinnedData(WIMPpars *W, detector *det, int nbins, int b, int simSeed);
 
 int generateUnbinnedData(WIMPpars *W, detector *det, int b, int simSeed);
 
