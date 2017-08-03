@@ -368,8 +368,8 @@ int getSamplingPars(parameterList *pL, char *filename)
         
         //asimov or random sim?
         ret = fgets(temp,200,input);
+        ret = fgets(temp,200,input);
         sscanf(temp,"%d",&(pL->w.asimov));
-    
     fclose(input); 
 
     return mode;
