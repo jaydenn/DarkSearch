@@ -35,11 +35,11 @@ int getSamplingPars(parameterList *pL, char *filename)
 
     FILE* input;
     input = fopen(filename,"r");
-    /*if(input==NULL) 
+    if(input==NULL) 
     {
         printf("unable to open parameter file: %s\n",filename);
         return -1;	
-    }*/
+    }
   
     int mode;
     char *ret;
@@ -82,11 +82,7 @@ int getSamplingPars(parameterList *pL, char *filename)
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
     sscanf(temp,"%d",&(pL->p.isv));
-    if(temp[0]=='p')
-        pL->p.isv = 2;
-    else if(temp[0]=='n')
-        pL->p.isv = 3;
-    
+
     ret = fgets(temp,200,input);
     ret = fgets(temp,200,input);
     sscanf(temp,"%d",&(pL->p.vDindex));
@@ -148,17 +144,10 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.coeffp[ind][1]=pL->p.coeffn[ind][1];
                 pL->p.coeffp[ind][2]=3;
             }
-            else if(pL->p.isv == 1) //isospin violation allowed
+            if(pL->p.isv > 0) //isospin violation allowed
             {
-                //neutron
-                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
-                pL->p.coeffn[ind][2]=priorIndex(prior);
-                if(pL->p.coeffn[ind][2]!=3)
-                {
-                    pL->p.coeffn[ind][3]= (double)pL->p.nDim++;
-                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
-                }
-                
+                //neutron coupling will stand in for Cni/Cpi (this allows us to scan log scales will retaining negative interference)
+               
                 //proton
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
                 pL->p.coeffp[ind][2]=priorIndex(prior);
@@ -166,41 +155,27 @@ int getSamplingPars(parameterList *pL, char *filename)
                 {
                     pL->p.coeffp[ind][3]= (double)pL->p.nDim++;
                     sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
-                }
-            }
-            else if(pL->p.isv == 2) //proton only
-            {
-                //proton
-                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
-                pL->p.coeffp[ind][2]=priorIndex(prior);
-                if(pL->p.coeffp[ind][2]!=3)
-                {
-                    pL->p.coeffp[ind][3]= (double)pL->p.nDim++;
-                    sprintf(pL->p.parNames[(int)pL->p.coeffp[ind][3]],"C%dp",ind);
-                }
-                //not scanning neutron
-                pL->p.coeffn[ind][0]=0;
-                pL->p.coeffn[ind][1]=0;
-                pL->p.coeffn[ind][2]=3;
-            }
-            else if(pL->p.isv == 3) //neutron only
-            {
-                //neutron
-                sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffn[ind][0]),&(pL->p.coeffn[ind][1]),prior);
-                pL->p.coeffn[ind][2]=priorIndex(prior);
-                if(pL->p.coeffn[ind][2]!=3)
-                {
+                    
+                    pL->p.coeffn[ind][0]=(double) -pL->p.isv;
+                    pL->p.coeffn[ind][1]=(double) +pL->p.isv;
+                    pL->p.coeffn[ind][2]=1; //only support linear for now
                     pL->p.coeffn[ind][3]= (double)pL->p.nDim++;
-                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn",ind);
+                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn/C%dp",ind,ind);
                 }
-                //proton
-                pL->p.coeffp[ind][0]=0;
-                pL->p.coeffp[ind][1]=0;
-                pL->p.coeffp[ind][2]=3;
+                else
+                {
+                    pL->p.coeffn[ind][0]=0;
+                    pL->p.coeffn[ind][2]=3; //only support linear for now
+                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn/C%dp",ind,ind);
+                }
+            }
+            else if(pL->p.isv < 0) 
+            {
+                std::cout << "Incorrect use of isospin parameter, must be zero or positive\n";
+                return(-1);
             }
             ret = fgets(temp,200,input);
             ind++;
-            
         }
         
         
