@@ -84,7 +84,7 @@ int generateBinnedData(WIMPpars *W, detector *det, int nbins, int b, int simSeed
         background = b * intBgRate(*det, Er_min, Er_max) * det->exposure;
         signal = intWIMPrate( Er_min, Er_max, W, det) * det->exposure; 
         
-        if( W->asimov == 1) 
+        if( W->asimov == 1)
             det->binnedData[i] = gsl_ran_poisson(r,signal+background);
         else
             det->binnedData[i] = signal + background;            

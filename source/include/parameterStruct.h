@@ -15,7 +15,7 @@ struct reconstructionParameters {
     double vesc[4];
     double vSp[4];
     double vEp[4];
-    char parNames[50][7];
+    char parNames[50][10];
     int isv;
     int nPar;     //number of WIMP parameters tracked
     int nDim;     //dimension of reconstruction

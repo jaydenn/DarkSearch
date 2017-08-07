@@ -62,20 +62,11 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
             W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
             W->coeffp[i] = W->coeffn[i];
         }
-        else if (P.isv == 1) //proton and neutron values allowed to be different
+        else if (P.isv > 0) //proton and neutron values allowed to be different
         {
-            W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
+            //we are treating the multinest parameter as Cin/Cip, this coverts it to normal Cin and Cip that calculations expect
             W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]], P.coeffp[i][0], P.coeffp[i][1], (int)P.coeffp[i][2]);
-        }
-        else if (P.isv == 2) //proton scanned, neutron set to zero
-        {
-            W->coeffn[i] = 0;
-            W->coeffp[i] = scale(&Cube[(int)P.coeffp[i][3]], P.coeffp[i][0], P.coeffp[i][1], (int)P.coeffp[i][2]);
-        }
-        else if (P.isv == 3) //neutron scanned, proton set to zero
-        {
-            W->coeffn[i] = scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
-            W->coeffp[i] = 0;
+            W->coeffn[i] = W->coeffp[i]*scale(&Cube[(int)P.coeffn[i][3]], P.coeffn[i][0], P.coeffn[i][1], (int)P.coeffn[i][2]);
         }
     }
     W->delta  = scale(&Cube[(int)P.delta[3]], P.delta[0], P.delta[1], (int)P.delta[2]);
@@ -169,7 +160,7 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     //WIMP pars for this point in the parameter space
     WIMPpars Wcube;
 	scaleParams( Cube, pL->p, &Wcube);
-	
+
     if(pL->binlessL==1)
     {
         lnew = logLikelihoodBinless( &Wcube, pL->detectors, pL->ndet, 1);
