@@ -159,9 +159,12 @@ int main(int argc, char *argv[])
         double signal[100];
         double background[100]; 
         double Er[100];
+        double total;
         
         for(int j=0; j< pL.ndet; j++)
         {
+            total = 0;
+            
             std::cout << setiosflags(std::ios::scientific) << setprecision(4);
           
             if ( pL.nbins == 0 )
@@ -212,11 +215,15 @@ int main(int argc, char *argv[])
                         signal[i] = gsl_ran_poisson(r,signal[i]);
                         background[i] = gsl_ran_poisson(r,background[i]);
                     }
+                    total+=signal[i]+background[i];
+                    
                     if(pL.sampling[3])
                         std::cout << Er[i] << "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
+                    
                 }
-                
-                 err = writeRateOutput(pL,j,Er,signal,background,pL.nbins);
+                if(pL.sampling[3])
+                    std::cout << "total number of events: " << total << std::endl;
+                err = writeRateOutput(pL,j,Er,signal,background,pL.nbins);
             }
             
             if(err)
