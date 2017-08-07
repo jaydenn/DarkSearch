@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
      
         //get sampling parameters from file
         int mode = getSamplingPars( &pL, filename); 
-        //pL.printPars();
+//        pL.printPars();
         
         if ( mode < 0 ) 
         {
@@ -101,11 +101,10 @@ int main(int argc, char *argv[])
         } 
        
         //Generate sim data for each detector
-	    if(myrank==0)
-                std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
-	    for(int i=0; i<pL.ndet; i++)
-        {                
-       	    
+        if(myrank==0)
+            std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
+	for(int i=0; i<pL.ndet; i++)
+        {
        	    if( pL.binlessL )
        	    {
        	        if (pL.w.asimov==0)
@@ -117,16 +116,16 @@ int main(int argc, char *argv[])
        	        if(myrank==0)
                	    std::cout << "***experimental feature***" << std::endl;
            	    err = generateUnbinnedData( &(pL.w), &(pL.detectors[i]), 1, simSeed);
-           	}
-           	else
-           	    err = generateBinnedData( &(pL.w), &(pL.detectors[i]), pL.nbins, 1, simSeed);
-           	    
+            }
+            else
+                err = generateBinnedData( &(pL.w), &(pL.detectors[i]), pL.nbins, 1, simSeed);
+
        	    if(err)
        	        return 1;
-       	    
-	        if(myrank==0)
-	            std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
-        }   
+
+            if(myrank==0)
+	        std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
+        }
         //run multinest sampling
         if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
 
