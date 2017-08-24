@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_rng.h>
@@ -75,7 +76,19 @@ int generateBinnedData(WIMPpars *W, detector *det, int nbins, int b, int simSeed
       std::cerr << "bad_alloc caught: " << ba.what() << std::endl << "you requested: " << det->nbins << " doubles" <<std::endl;
       return 1;
     }
-  
+    
+    char filename[100];
+    std::ofstream datfile;
+    FILE* data;
+    char *ret;
+    char temp[100];
+    
+    sprintf(filename,"%s_events.dat",det->name);
+    if ( W->asimov == 2 )
+        data = fopen(filename,"r");
+    else
+        datfile.open(filename,ios::out);
+
     for(int i=0; i<det->nbins; i++)
     {
         Er_min = (double)i*det->binW+det->ErL;
@@ -84,14 +97,26 @@ int generateBinnedData(WIMPpars *W, detector *det, int nbins, int b, int simSeed
         background = b * intBgRate(*det, Er_min, Er_max) * det->exposure;
         signal = intWIMPrate( Er_min, Er_max, W, det) * det->exposure; 
         
-        if( W->asimov == 1)
+        if ( W->asimov == 2 )
+        {
+            ret = fgets(temp,100,data);
+            sscanf(temp,"%*lf %*lf %lf",&(det->binnedData[i]));
+        }
+        else if( W->asimov == 1)
+        {
             det->binnedData[i] = gsl_ran_poisson(r,signal+background);
+            datfile << Er_min << " " << Er_max << " " << det->binnedData[i] << std::endl;
+        }
         else
+        {
             det->binnedData[i] = signal + background;            
-
+            datfile << Er_min << " " << Er_max << " " << det->binnedData[i] << std::endl;
+        }
+        
         det->nEvents += det->binnedData[i];
     }
-    
+
+    datfile.close();
     gsl_rng_free(r);
     return 0;
      
