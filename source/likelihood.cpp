@@ -14,7 +14,7 @@
 //natural log of Poisson dist: gives more accurate values for small probabilities (because of machine precision)
 double logPoisson(double obs, double expect)
 {
-    if ( expect > 0. && obs > 0. )
+    if ( expect > 0. && obs >= 0. )
         return -expect + obs * log( expect ) - gsl_sf_lngamma( obs+1 );
     else
         return -1E299;
@@ -115,7 +115,7 @@ double logLikelihood( WIMPpars *W, detector *dets, int ndets, int b)
 
             l = logPoisson( dets[j].binnedData[i], signal+background+1e-99);
             loglike += l;
-            
+            //std::cout << loglike << " " << l << " " << dets[j].binnedData[i] << " " <<  signal+background << std::endl; 
         } 
         
     }
