@@ -223,6 +223,6 @@ void LogLikeVelPriorA(double *Cube, int &ndim, int &npars, double &lnew, long &p
         //std::cout << gsl_ran_gaussian_pdf(GMB-Gcheb,sigma) << " " << GMB << " " << Gcheb << " " << sigma << std::endl;
     }
     Cube[ndim]= Wcube.vLa[0];
-    if( lnew != lnew)
-        lnew = -1e99;
+    if( isnan(lnew) )        
+	lnew = -1e99;
 }

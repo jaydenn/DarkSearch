@@ -479,6 +479,17 @@ int writeVelData(parameterList pL)
     return 0;
 }
 
+/*int writeMonteCarloDataOut(detector *det)
+{
+    char filename[100];
+    std::ofstream outfile;
+    
+    sprintf(filename,"%s%s_MCevents.dat",pL.root,pL.detectors[detj].name);
+    outfile.open(filename,ios::out);
+    
+    
+}*/
+
 int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, double *background, int sizeData)
 {
     char filename[100];
@@ -486,11 +497,11 @@ int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, doub
     
     sprintf(filename,"%s%s_dRdE.dat",pL.root,pL.detectors[detj].name);
     outfile.open(filename,ios::out);
-   /* if(outfile==NULL)
+   if( !outfile )
     {
         std::cout << "output file cannot be created" << std::endl;
         return 1;
-    } */
+    } 
     
     //write out WIMP parameters
     outfile << "//recoil spectrum for detector "  << pL.detectors[detj].name << std::endl;
