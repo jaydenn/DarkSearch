@@ -146,7 +146,7 @@ int getSamplingPars(parameterList *pL, char *filename)
             }
             if(pL->p.isv > 0) //isospin violation allowed
             {
-                //neutron coupling will stand in for Cni/Cpi (this allows us to scan log scales will retaining negative interference)
+                //neutron coupling will stand in for Cni/Cpi (this allows us to scan log scales while retaining negative interference)
                
                 //proton
                 sscanf(temp,"%*s %lf %lf %s",&(pL->p.coeffp[ind][0]),&(pL->p.coeffp[ind][1]),prior);
@@ -164,9 +164,10 @@ int getSamplingPars(parameterList *pL, char *filename)
                 }
                 else
                 {
-                    pL->p.coeffn[ind][0]=0;
-                    pL->p.coeffn[ind][2]=3; //only support linear for now
-                    sprintf(pL->p.parNames[(int)pL->p.coeffn[ind][3]],"C%dn/C%dp",ind,ind);
+                    pL->p.coeffn[ind][2]=3;
+                    pL->p.coeffn[ind][3]=-1;
+                    pL->p.coeffp[ind][2]=3;
+                    pL->p.coeffp[ind][3]=-1;
                 }
             }
             else if(pL->p.isv < 0) 
@@ -188,6 +189,8 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.delta[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.delta[3]],"delta");
             }
+            else
+                pL->p.delta[3]=-1;
         
         }
         
@@ -201,6 +204,8 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.rho[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.rho[3]],"rho");
             }
+            else
+                pL->p.rho[3]=-1;
         
         }
 
@@ -214,6 +219,9 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.v0[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.v0[3]],"v0");
             }
+            else
+                pL->p.v0[3]=-1;
+                
             pL->p.v0[0]=pL->p.v0[0]/3e5;
             pL->p.v0[1]=pL->p.v0[1]/3e5;
             
@@ -229,6 +237,9 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.vesc[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.vesc[3]],"vesc");
             }
+            else
+                pL->p.vesc[3]=-1;
+            
             pL->p.vesc[0]=pL->p.vesc[0]/3e5;
             pL->p.vesc[1]=pL->p.vesc[1]/3e5;
             
@@ -243,6 +254,8 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.vSp[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.vSp[3]],"vSp");
             }
+            else
+                pL->p.vSp[3]=-1;
             pL->p.vSp[0]=pL->p.vSp[0]/3e5;
             pL->p.vSp[1]=pL->p.vSp[1]/3e5;
         }
@@ -256,6 +269,8 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.vEp[3]= (double)pL->p.nDim++;
                 sprintf(pL->p.parNames[(int)pL->p.vEp[3]],"vSp");
             }
+            else
+                pL->p.vEp[3]=-1;
             pL->p.vEp[0]=pL->p.vEp[0]/3e5;
             pL->p.vEp[1]=pL->p.vEp[1]/3e5;
         }
@@ -283,6 +298,11 @@ int getSamplingPars(parameterList *pL, char *filename)
                 pL->p.vLa[0][3] = (double)pL->p.nDim+pL->p.nPar++;
                 pL->p.vLa[0][2] = 3;
                 sprintf(pL->p.parNames[(int)pL->p.vLa[0][3]],"a0");
+            }
+            else
+            {
+                pL->p.vLa[0][2] = 3;
+                pL->p.vLa[0][3] = -1;
             }
         }
         ret = fgets(temp,200,input);
@@ -386,7 +406,7 @@ int writeSamplingOutput(parameterList pL)
 
     //print parameter headings
     outfile << "//  P                           -2Log(L)                    ";
-    for(int i=0; i<37; i++)
+    for(int i=0; i<pL.p.nPar; i++)
         outfile  <<  pL.p.parNames[i] << "                         ";
 
     outfile << std::endl;
