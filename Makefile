@@ -1,8 +1,7 @@
-CC = mpif90
+CC = mpiCC
 FLAGS = -g -Ofast -DMPI -DOMPI_SKIP_MPICXX
-NESTLIBDIR = ../MultiNest_v3.9
 
-LIBS = -L$(NESTLIBDIR) -lnest3 -llapack -lgsl -lgslcblas -lstdc++ -lgfortran -lm
+LIBS = -lmultinest_mpi -llapack -lgsl -lgslcblas -lstdc++ -lgfortran -lm
 INCLUDE = -I./source/include 
 OBJECTS = source/DarkSearch.o source/nuBackground.o source/detectorFunctions.o source/detectors.o source/directDet.o source/fileIO.o source/formfactorSI.o source/monteCarlo.o source/likelihood.o source/isoRates.o source/velDist.o
 
