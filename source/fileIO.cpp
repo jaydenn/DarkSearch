@@ -333,6 +333,11 @@ int getSamplingPars(parameterList *pL, char *filename)
     
     if (pL->ndet==10) printf("Maximum 10 detectors allowed\n");  
     
+    //Type of simulation 
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %d",&(pL->simType));
+        ret = fgets(temp,200,input);
+
     //WIMP simulation parameters
         ret = fgets(temp,200,input);
         sscanf(temp,"%*s %lf",&(pL->w.Mx));
@@ -361,6 +366,17 @@ int getSamplingPars(parameterList *pL, char *filename)
         sscanf(temp,"%*s %lf",&(pL->w.vEp)); pL->w.vEp/=3e5;
         ret = fgets(temp,200,input);
         sscanf(temp,"%*s %d",&(pL->w.vDindex));
+        
+        //modulation parameters
+        ret = fgets(temp,200,input);
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %lf",&(pL->w.amp));
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %lf",&(pL->w.phase));
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %lf",&(pL->w.period));
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %lf",&(pL->w.total)); 
         
         //asimov or random sim?
         ret = fgets(temp,200,input);

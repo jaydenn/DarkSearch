@@ -123,6 +123,40 @@ double logLikelihood( WIMPpars *W, detector *dets, int ndets, int b)
 	return loglike;
 }
 
+//likelihood function for binned data
+double logLikelihoodT( WIMPpars *W, detector *dets, int ndets, int b)
+{
+
+	//Calculate log-likelihood
+	double signal, background, l;
+	double loglike = 0;
+    double T_min, T_max;
+
+    //loop over detectors
+    for(int j=0; j<ndets; j++)
+    {   
+        
+        //loop over recoil time bins
+        for(int i=0; i<dets[j].nbins; i++)			
+        {
+            //set bin limits
+            T_min = (double)i*dets[j].binW;
+            T_max = (double)(i+1)*dets[j].binW;
+            
+            background = b; //intBgRate(dets[j], Er_min, Er_max) * dets[j].exposure;
+            signal = intWIMPrateT(dets[j].ErL, dets[j].ErU, T_min, T_max, W, &(dets[j])) * dets[j].exposure; 
+
+            l = logPoisson( dets[j].binnedData[i], signal+background+1e-99);
+            loglike += l;
+            std::cout << loglike << " " << l << " " << dets[j].binnedData[i] << " " <<  signal+background << std::endl; 
+        } 
+        
+    }
+
+	return loglike;
+}
+
+
 //binless likelihood function
 double logLikelihoodBinless( WIMPpars *W, detector *dets, int ndets, int b)
 {
@@ -169,9 +203,26 @@ void LogLikedN(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)
     {
         lnew = logLikelihood( &Wcube, pL->detectors, pL->ndet, 1);
     }
+    //Cube[(int)pL->p.vLa[0][3]] = Wcube.vLa[0];
+    
+}
+
+void LogLikedNT(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)    
+{   
+
+    //get pointer in from MultiNest 
+    parameterList *pL = (parameterList *) pointer;
+    
+    //WIMP pars for this point in the parameter space
+    WIMPpars Wcube;
+	scaleParams( Cube, pL->p, &Wcube);
+    std::cout << " n\n";
+    lnew = logLikelihoodT( &Wcube, pL->detectors, pL->ndet, 0);
+
     Cube[(int)pL->p.vLa[0][3]] = Wcube.vLa[0];
     
 }
+
 
 //log likelihood for calculating priors for chebyshev polynomials
 void LogLikeVelPrior(double *Cube, int &ndim, int &npars, double &lnew, long &pointer)

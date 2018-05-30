@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
      
         //get sampling parameters from file
         int mode = getSamplingPars( &pL, filename); 
-//        pL.printPars();
+        pL.printPars();
         
         if ( mode < 0 ) 
         {
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         //Generate sim data for each detector
         if(myrank==0)
             std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
-	for(int i=0; i<pL.ndet; i++)
+        for(int i=0; i<pL.ndet; i++)
         {
        	    if( pL.binlessL )
        	    {
@@ -231,9 +231,49 @@ int main(int argc, char *argv[])
         }
         return 0;
     }
-    
-    //velocity integral prior
+  
+    //Modulation reconstruction
     if(mode == 2)
+    {
+
+        if(myrank==0)
+            std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
+        for(int i=0; i<pL.ndet; i++)
+        {
+            if(pL.nbins==0)
+            {
+                std::cout << "cannot do binless modulation (yet)\ndefaulting to 12 bins..\n";
+                pL.nbins=12;
+            }
+            err = generateTimeBinnedData( &(pL.w), &(pL.detectors[i]), pL.nbins, 0, simSeed);
+       	    if(err)
+       	        return 1;
+
+            if(myrank==0)
+	        std::cout << "  " << pL.detectors[i].name << " (" << pL.detectors[i].exposure << " t.y): " << pL.detectors[i].nEvents << " events" << std::endl;
+        }
+        //run multinest sampling
+        if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
+
+        //  nestRun(              mmodal,                ceff,              nlive,            tol,           efr,ndims,  nPar,nCdims,  maxModes,    updInt,          nullZ,     root, seed, pWrap,             feedback,               resume,       outfile,       initMPI, logZero,    loglike, dumper, context)
+        nested::run((bool)pL.sampling[0],(bool)pL.sampling[1],(int)pL.sampling[2], pL.sampling[6], pL.sampling[5],ndims, npar, ndims,       100, updateInt, pL.sampling[7],  pL.root, seed, pWrap, (bool)pL.sampling[3], (bool)pL.sampling[4], (bool)outfile, (bool)initMPI, logZero, LogLikedNT, dumper, pointer);
+        
+        #ifdef MPI
+            MPI_Finalize();
+        #endif
+        
+        //write parameters to file
+        if(myrank==0)
+            err = writeSamplingOutput(pL);
+        
+        if(err)
+            std::cout << "problem writing output file" << std::endl;
+        
+        return 0;
+
+    }
+    //velocity integral prior
+    if(mode == 3)
     {
         
         //ndims = 4;                                // number of parameters in the reconstruction

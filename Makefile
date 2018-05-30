@@ -3,7 +3,7 @@ FLAGS = -g -Ofast -DMPI -DOMPI_SKIP_MPICXX
 
 LIBS = -lmultinest_mpi -llapack -lgsl -lgslcblas -lstdc++ -lgfortran -lm
 INCLUDE = -I./source/include 
-OBJECTS = source/DarkSearch.o source/nuBackground.o source/detectorFunctions.o source/detectors.o source/directDet.o source/fileIO.o source/formfactorSI.o source/monteCarlo.o source/likelihood.o source/isoRates.o source/velDist.o
+OBJECTS = source/DarkSearch.o source/nuBackground.o source/detectorFunctions.o source/detectors.o source/directDet.o source/fileIO.o source/formfactorSI.o source/monteCarlo.o source/likelihood.o source/isoRates.o source/velDist.o source/earthVel.o
 
 default: DarkSearch
 

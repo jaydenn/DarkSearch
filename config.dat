@@ -1,6 +1,6 @@
 //Dark Search running options
-0                  // running mode: 0 simulation, 1 Print out dR/dE
-./results/DS_i_      // root of output file names, can include directories, make unique to run 2 instances of DS simultaneously
+2                  // running mode: 0 simulation, 1 Print out dR/dE
+./results/DS_      // root of output file names, can include directories, make unique to run 2 instances of DS simultaneously
 //Multinest Sampling Parameters (0 off, 1 on)
 1                  // do mode separation?
 0                  // run in constant efficiency mode?
@@ -40,16 +40,18 @@ delta    0            100           none
 rho      0.3          0.1           none       // Local dark matter density (Gev/cm^3)
 v0       220          20            none       // Galactic rotation velocity (km/s)
 vesc     544          40            none       // Galactic escape velocity from earth (km/s)
-vSp      20           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
-vEp      0            0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
+vSp      10           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
+vEp      20           0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
 ai       0            100           none     // sets the prior for all coeffients of the chebyshev polys 
 // Detector   |  Exposure (Tonne*years)
-#XENON      0.00131
+#XENON      1
+//Simulation type 0=absolute 1=modulation
+1
 //Simulated WIMP parameters
-Mx       20.        // WIMP mass [GeV]
+Mx       10.        // WIMP mass [GeV]
 spin     0.5       // WIMP spin
 //operator  protons   neutrons
-C1          1e-3      1e-3                
+C1          1e-3      1e-3
 C2          0         0
 C3          0         0  
 C4          0         0
@@ -68,8 +70,13 @@ delta     0
 rho     0.3          
 v0      220          
 vesc    544          
-vSp      20           
-vEp       0
+vSp      10           
+vEp      20 
 vDindex   1
+//modulation parameters
+amp     0.1        
+phase   152
+period  365
+total    10
 //Simulate Asimov data set/random Monte-Carlo (0/1)
 0

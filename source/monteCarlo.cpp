@@ -122,3 +122,77 @@ int generateBinnedData(WIMPpars *W, detector *det, int nbins, int b, int simSeed
      
 }
 
+int generateTimeBinnedData(WIMPpars *W, detector *det, int nbins, int b, int simSeed)
+{
+
+    const gsl_rng_type * T;
+    gsl_rng * r;
+    gsl_rng_env_setup();
+    T=gsl_rng_default;
+    r=gsl_rng_alloc(T);
+    gsl_rng_set(r, simSeed + SEED++);
+    
+    //total signal and background, for setting bin size
+    double signal;// = intWIMPrate( det->ErL, det->ErU, W, det) * det->exposure;
+    double background;// = b * intBgRate(*det, det->ErL, det->ErU) * det->exposure; 
+
+    det->nbins = nbins;
+
+    det->binW = 1 / ( (double) det->nbins);
+    
+    try
+    {
+        det->binnedData = new double[det->nbins];
+    }
+    catch (std::bad_alloc& ba)
+    {
+      std::cerr << "bad_alloc caught: " << ba.what() << std::endl << "you requested: " << det->nbins << " doubles" <<std::endl;
+      return 1;
+    }
+    
+    char filename[100];
+    std::ofstream datfile;
+    FILE* data;
+    char *ret;
+    char temp[100];
+    
+    sprintf(filename,"%s_events.dat",det->name);
+    if ( W->asimov == 2 )
+        data = fopen(filename,"r");
+    else
+        datfile.open(filename,ios::out);
+    
+    double T_min,T_max;
+    for(int i=0; i<det->nbins; i++)
+    {
+        T_min = (double)i*det->binW;
+        T_max = (double)(i+1)*det->binW;
+        
+        //background = b * intBgRate(*det, Er_min, Er_max) * det->exposure;
+        signal = intWIMPrateT( det->ErL, det->ErU, T_min, T_max, W, det) * det->exposure; 
+        
+        if ( W->asimov == 2 )
+        {
+            ret = fgets(temp,100,data);
+            sscanf(temp,"%*lf %*lf %lf",&(det->binnedData[i]));
+        }
+        else if( W->asimov == 1)
+        {
+            det->binnedData[i] = gsl_ran_poisson(r,signal+background);
+            datfile << T_min << " " << T_max << " " << det->binnedData[i] << std::endl;
+        }
+        else
+        {
+            det->binnedData[i] = signal + background;            
+            datfile << T_min << " " << T_max << " " << det->binnedData[i] << std::endl;
+        }
+        std::cout << i << " " << T_min << " " << det->binnedData[i] << std::endl;
+        det->nEvents += det->binnedData[i];
+    }
+
+    datfile.close();
+    gsl_rng_free(r);
+    return 0;
+     
+}
+

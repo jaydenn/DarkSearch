@@ -22,6 +22,12 @@ struct reconstructionParameters {
     int vDindex;
     double vLa[8][4];
     
+    //modulation pars
+    double amp;
+    double phase;
+    double period;
+    double total;
+    
     void printReconstPars()
     {
         
@@ -60,6 +66,12 @@ struct WIMPpars {
     double vLa[8];
     int asimov;
     
+    //modulation pars
+    double amp;
+    double phase;
+    double period;
+    double total;
+    
     void printWIMPpars()
     {
         printf("WIMP parameters:\n");
@@ -88,7 +100,8 @@ struct parameterList {
     int binlessL;
     int nbins;
     int ndet;
-    
+    int simType;
+
     reconstructionParameters p;
     WIMPpars w;
     detector detectors[10];
