@@ -173,20 +173,20 @@ int main(int argc, char *argv[])
                     std::cout << "recoil spectrum for detector  " << pL.detectors[j].name << std::endl; 
                     std::cout << "Er(keV)       WIMP-rate     Bg-rate      total-rate (/keV/t/year)" << std::endl;
                 }
-                
-                for(int i=1;i<100;i++)
+
+                for(int i=0;i<100;i++)
                 {
                     Er[i] = pL.detectors[j].ErL + (double)i*(pL.detectors[j].ErU-pL.detectors[j].ErL)/100;
-                    
+
                     signal[i]     = diffWIMPrate(Er[i], &(pL.w), &(pL.detectors[j])); 
                     background[i] = diffBgRate(pL.detectors[j],Er[i]);
-                    
+
                     if(pL.sampling[3])
                         std::cout << Er[i] << "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
                 }
-                           
+
                 err = writeRateOutput(pL,j,Er,signal,background,sizeData);
-                
+
             }
             else
             {
@@ -235,7 +235,8 @@ int main(int argc, char *argv[])
     //Modulation reconstruction
     if(mode == 2)
     {
-
+        ndims+=1;
+        npar+=1;
         if(myrank==0)
             std::cout << "Using " << pL.ndet << " detector(s):" << std::endl;
         for(int i=0; i<pL.ndet; i++)
@@ -255,7 +256,7 @@ int main(int argc, char *argv[])
         //run multinest sampling
         if(myrank==0) std::cout << "Starting MultiNest sampling..." << std::endl;
 
-        //  nestRun(              mmodal,                ceff,              nlive,            tol,           efr,ndims,  nPar,nCdims,  maxModes,    updInt,          nullZ,     root, seed, pWrap,             feedback,               resume,       outfile,       initMPI, logZero,    loglike, dumper, context)
+        //  nestRun(              mmodal,                ceff,              nlive,            tol,           efr, ndims, nPar,nCdims,  maxModes,    updInt,          nullZ,     root, seed, pWrap,             feedback,               resume,       outfile,       initMPI, logZero,    loglike, dumper, context)
         nested::run((bool)pL.sampling[0],(bool)pL.sampling[1],(int)pL.sampling[2], pL.sampling[6], pL.sampling[5],ndims, npar, ndims,       100, updateInt, pL.sampling[7],  pL.root, seed, pWrap, (bool)pL.sampling[3], (bool)pL.sampling[4], (bool)outfile, (bool)initMPI, logZero, LogLikedNT, dumper, pointer);
         
         #ifdef MPI

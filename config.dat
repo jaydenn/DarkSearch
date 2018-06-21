@@ -1,5 +1,5 @@
 //Dark Search running options
-2                  // running mode: 0 simulation, 1 Print out dR/dE
+1                  // running mode: 0 simulation, 1 Print out dR/dE
 ./results/DS_      // root of output file names, can include directories, make unique to run 2 instances of DS simultaneously
 //Multinest Sampling Parameters (0 off, 1 on)
 1                  // do mode separation?
@@ -10,7 +10,7 @@
 0.9                // set the required efficiency. 0.8 and 0.3 are recommended for parameter estimation & evidence evalutaion respectively.
 0.9                // tol, defines the stopping criteria, 0.5 gives good enough accuracy
 -1.e90             // all the modes with logZ < Ztol are ignored
-10                  // Number of bins (set = 0 for binless analysis)
+0                  // Number of bins (set = 0 for binless analysis)
 //Include coherent neutrino scattering background
 0
 //Allow isospin violation in reconstruction? (0=no/ >0=yes, with specified magnitude)
@@ -40,18 +40,20 @@ delta    0            100           none
 rho      0.3          0.1           none       // Local dark matter density (Gev/cm^3)
 v0       220          20            none       // Galactic rotation velocity (km/s)
 vesc     544          40            none       // Galactic escape velocity from earth (km/s)
-vSp      10           0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
-vEp      20           0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
+vSp1     11.1         0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
+vSp2     12.2         0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
+vSp3     7.3          0             none       // Magnitude of Solar peculiar velocity w.r.t local standard of rest
+vEp      29.8         0             none       // Magnitude of Earth peculiar velocity w.r.t the Sun
 ai       0            100           none     // sets the prior for all coeffients of the chebyshev polys 
 // Detector   |  Exposure (Tonne*years)
 #XENON      1
 //Simulation type 0=absolute 1=modulation
-1
+0
 //Simulated WIMP parameters
 Mx       10.        // WIMP mass [GeV]
 spin     0.5       // WIMP spin
 //operator  protons   neutrons
-C1          1e-3      1e-3
+C1          1         1
 C2          0         0
 C3          0         0  
 C4          0         0
@@ -66,13 +68,15 @@ C12         0         0
 C13         0         0  
 C14         0         0  
 C15         0         0
-delta     0
-rho     0.3          
-v0      220          
-vesc    544          
-vSp      10           
-vEp      20 
-vDindex   1
+delta      0
+rho      0.3          
+v0       220          
+vesc     544          
+vSp1     11.1           
+vSp2     12.2
+vSp3     7.3
+vEp      29.8 
+vDindex    1
 //modulation parameters
 amp     0.1        
 phase   152

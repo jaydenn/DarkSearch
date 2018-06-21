@@ -85,7 +85,9 @@ void scaleParams(double *Cube, reconstructionParameters P, WIMPpars *W)
     {
         W->v0   = scale(&Cube[(int)P.v0[3]], P.v0[0],  P.v0[1],  (int)P.v0[2]);
         W->vesc = scale(&Cube[(int)P.vesc[3]], P.vesc[0],P.vesc[1],(int)P.vesc[2]);
-        W->vSp  = scale(&Cube[(int)P.vSp[3]], P.vSp[0],P.vSp[1],(int)P.vSp[2]);
+        W->vSp[0]  = scale(&Cube[(int)P.vSp1[3]], P.vSp1[0],P.vSp1[1],(int)P.vSp1[2]);
+        W->vSp[1]  = scale(&Cube[(int)P.vSp2[3]], P.vSp2[0],P.vSp2[1],(int)P.vSp2[2]);
+        W->vSp[2]  = scale(&Cube[(int)P.vSp3[3]], P.vSp3[0],P.vSp3[1],(int)P.vSp3[2]);
         W->vEp  = scale(&Cube[(int)P.vEp[3]], P.vEp[0],P.vEp[1],(int)P.vEp[2]);
     }
 }
@@ -124,7 +126,7 @@ double logLikelihood( WIMPpars *W, detector *dets, int ndets, int b)
 }
 
 //likelihood function for binned data
-double logLikelihoodT( WIMPpars *W, detector *dets, int ndets, int b)
+double logLikelihoodT( WIMPpars *W, detector *dets, int ndets, int base)
 {
 
 	//Calculate log-likelihood
@@ -143,7 +145,7 @@ double logLikelihoodT( WIMPpars *W, detector *dets, int ndets, int b)
             T_min = (double)i*dets[j].binW;
             T_max = (double)(i+1)*dets[j].binW;
             
-            background = b; //intBgRate(dets[j], Er_min, Er_max) * dets[j].exposure;
+            background = base; //intBgRate(dets[j], Er_min, Er_max) * dets[j].exposure;
             signal = intWIMPrateT(dets[j].ErL, dets[j].ErU, T_min, T_max, W, &(dets[j])) * dets[j].exposure; 
 
             l = logPoisson( dets[j].binnedData[i], signal+background+1e-99);
@@ -216,10 +218,9 @@ void LogLikedNT(double *Cube, int &ndim, int &npars, double &lnew, long &pointer
     //WIMP pars for this point in the parameter space
     WIMPpars Wcube;
 	scaleParams( Cube, pL->p, &Wcube);
-    std::cout << " n\n";
-    lnew = logLikelihoodT( &Wcube, pL->detectors, pL->ndet, 0);
-
-    Cube[(int)pL->p.vLa[0][3]] = Wcube.vLa[0];
+    Cube[ndim-1] *= pL->detectors[0].nEvents;
+    
+    lnew = logLikelihoodT( &Wcube, pL->detectors, pL->ndet, Cube[ndim-1]);
     
 }
 
@@ -240,7 +241,7 @@ void LogLikeVelPrior(double *Cube, int &ndim, int &npars, double &lnew, long &po
     
     for (int i=0; i < 100; i++)
     {
-        Cube[4+i] = G( Wcube.v0, Wcube.v0+Wcube.vSp+Wcube.vEp, Wcube.vesc, i*vmax/100.0, 1, Wcube.vLa);
+        //Cube[4+i] = G( Wcube.v0, Wcube.v0+Wcube.vSp+Wcube.vEp, Wcube.vesc, i*vmax/100.0, 1, Wcube.vLa);
         //std::cout << Wcube.v0 << " " << Wcube.v0+Wcube.vSp+Wcube.vEp << " " <<  Wcube.vesc << " " << i*vmax/10.0 << " " << Cube[4+i] << std::endl;
     }
 }
