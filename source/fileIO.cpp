@@ -222,8 +222,8 @@ int getSamplingPars(parameterList *pL, char *filename)
             else
                 pL->p.v0[3]=-1;
                 
-            pL->p.v0[0]=pL->p.v0[0]/3e5;
-            pL->p.v0[1]=pL->p.v0[1]/3e5;
+            pL->p.v0[0]=pL->p.v0[0]/299792.;
+            pL->p.v0[1]=pL->p.v0[1]/299792.;
             
         }
         
@@ -240,26 +240,56 @@ int getSamplingPars(parameterList *pL, char *filename)
             else
                 pL->p.vesc[3]=-1;
             
-            pL->p.vesc[0]=pL->p.vesc[0]/3e5;
-            pL->p.vesc[1]=pL->p.vesc[1]/3e5;
+            pL->p.vesc[0]=pL->p.vesc[0]/299792.;
+            pL->p.vesc[1]=pL->p.vesc[1]/299792.;
             
         }
         
         if(temp[0]=='v'&&temp[1]=='S')
         {
-            sscanf(temp,"%*s %lf %lf %s",&(pL->p.vSp[0]),&(pL->p.vSp[1]),prior);
-            pL->p.vSp[2]=priorIndex(prior); 
-            if(pL->p.vSp[2]!=3)
+            sscanf(temp,"%*s %lf %lf %s",&(pL->p.vSp1[0]),&(pL->p.vSp1[1]),prior);
+            pL->p.vSp1[2]=priorIndex(prior); 
+            if(pL->p.vSp1[2]!=3)
             {
-                pL->p.vSp[3]= (double)pL->p.nDim++;
-                sprintf(pL->p.parNames[(int)pL->p.vSp[3]],"vSp");
+                pL->p.vSp1[3]= (double)pL->p.nDim++;
+                sprintf(pL->p.parNames[(int)pL->p.vSp1[3]],"vSp1");
             }
             else
-                pL->p.vSp[3]=-1;
-            pL->p.vSp[0]=pL->p.vSp[0]/3e5;
-            pL->p.vSp[1]=pL->p.vSp[1]/3e5;
+                pL->p.vSp1[3]=-1;
+            pL->p.vSp1[0]=pL->p.vSp1[0]/299792.;
+            pL->p.vSp1[1]=pL->p.vSp1[1]/299792.;
         }
         
+        if(temp[0]=='v'&&temp[1]=='S')
+        {
+            sscanf(temp,"%*s %lf %lf %s",&(pL->p.vSp2[0]),&(pL->p.vSp2[1]),prior);
+            pL->p.vSp2[2]=priorIndex(prior); 
+            if(pL->p.vSp2[2]!=3)
+            {
+                pL->p.vSp2[3]= (double)pL->p.nDim++;
+                sprintf(pL->p.parNames[(int)pL->p.vSp2[3]],"vSp2");
+            }
+            else
+                pL->p.vSp2[3]=-1;
+            pL->p.vSp2[0]=pL->p.vSp2[0]/299792.;
+            pL->p.vSp2[1]=pL->p.vSp2[1]/299792.;
+        }
+
+        if(temp[0]=='v'&&temp[1]=='S')
+        {
+            sscanf(temp,"%*s %lf %lf %s",&(pL->p.vSp3[0]),&(pL->p.vSp3[1]),prior);
+            pL->p.vSp3[2]=priorIndex(prior); 
+            if(pL->p.vSp3[2]!=3)
+            {
+                pL->p.vSp3[3]= (double)pL->p.nDim++;
+                sprintf(pL->p.parNames[(int)pL->p.vSp3[3]],"vSp3");
+            }
+            else
+                pL->p.vSp3[3]=-1;
+            pL->p.vSp3[0]=pL->p.vSp3[0]/299792.;
+            pL->p.vSp3[1]=pL->p.vSp3[1]/299792.;
+        }
+
         if(temp[0]=='v'&&temp[1]=='E')
         {
             sscanf(temp,"%*s %lf %lf %s",&(pL->p.vEp[0]),&(pL->p.vEp[1]),prior);
@@ -271,8 +301,8 @@ int getSamplingPars(parameterList *pL, char *filename)
             }
             else
                 pL->p.vEp[3]=-1;
-            pL->p.vEp[0]=pL->p.vEp[0]/3e5;
-            pL->p.vEp[1]=pL->p.vEp[1]/3e5;
+            pL->p.vEp[0]=pL->p.vEp[0]/299792.;
+            pL->p.vEp[1]=pL->p.vEp[1]/299792.;
         }
         
         if(temp[0]=='a')
@@ -357,13 +387,17 @@ int getSamplingPars(parameterList *pL, char *filename)
         //astro parameters
         sscanf(temp,"%*s %lf",&(pL->w.rho)); 
         ret = fgets(temp,200,input);
-        sscanf(temp,"%*s %lf",&(pL->w.v0)); pL->w.v0/=3e5;
+        sscanf(temp,"%*s %lf",&(pL->w.v0)); pL->w.v0/=299792.;
         ret = fgets(temp,200,input);
-        sscanf(temp,"%*s %lf",&(pL->w.vesc)); pL->w.vesc/=3e5;
+        sscanf(temp,"%*s %lf",&(pL->w.vesc)); pL->w.vesc/=299792.;
         ret = fgets(temp,200,input);
-        sscanf(temp,"%*s %lf",&(pL->w.vSp)); pL->w.vSp/=3e5;
+        sscanf(temp,"%*s %lf",&(pL->w.vSp[0])); pL->w.vSp[0]/=299792.;
         ret = fgets(temp,200,input);
-        sscanf(temp,"%*s %lf",&(pL->w.vEp)); pL->w.vEp/=3e5;
+        sscanf(temp,"%*s %lf",&(pL->w.vSp[1])); pL->w.vSp[1]/=299792.;
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %lf",&(pL->w.vSp[2])); pL->w.vSp[2]/=299792.;
+        ret = fgets(temp,200,input);
+        sscanf(temp,"%*s %lf",&(pL->w.vEp)); pL->w.vEp/=299792.;
         ret = fgets(temp,200,input);
         sscanf(temp,"%*s %d",&(pL->w.vDindex));
         
@@ -413,7 +447,7 @@ int writeSamplingOutput(parameterList pL)
     for( int i=1; i<16; i++)
         outfile << "C" << i << "n = " << pL.w.coeffn[i] << ", ";
     outfile << std::endl;
-    outfile << "//Astrophysical parameters: rho = " << pL.p.rho[0] << " GeV/cm^3, v0 = " << pL.p.v0[0]*3E5 << " km/s, vesc = " << pL.p.vesc[0]*3E5 << " km/s" << std::endl; 
+    outfile << "//Astrophysical parameters: rho = " << pL.p.rho[0] << " GeV/cm^3, v0 = " << pL.p.v0[0]*299792. << " km/s, vesc = " << pL.p.vesc[0]*299792. << " km/s" << std::endl; 
         
     //print detector parameters
     outfile << "// Detectors used:" << std::endl;
@@ -486,8 +520,8 @@ int writeVelData(parameterList pL)
             std::cout << totProb << std::endl;
             for (int j=0; j<50; j++)
             {
-                gvmin = G(0,0,0,(double)20*j/3e5,4,a);
-                fv = fpoly( (double)20*j/3e5, a, 4);
+                gvmin = G(0,0,0,(double)20*j/299792.,4,a);
+                fv = fpoly( (double)20*j/299792., a, 4);
                 if (fv < Fv[j][0] || first) 
                     Fv[j][0] = fv;
                 if (fv > Fv[j][1] || first) 
@@ -509,7 +543,7 @@ int writeVelData(parameterList pL)
     sprintf(filename,"%svelDist.dat",pL.root);
     vOut.open(filename,ios::out);
     for (int j=0; j<50; j++)
-        vOut << (double)20*j/3e5 << " " <<  Fv[j][0] << " " <<  Fv[j][1] << " " <<  Gvmin[j][0] << " "  << Gvmin[j][1] << std::endl;
+        vOut << (double)20*j/299792. << " " <<  Fv[j][0] << " " <<  Fv[j][1] << " " <<  Gvmin[j][0] << " "  << Gvmin[j][1] << std::endl;
     
     vOut.close();
     
@@ -531,15 +565,15 @@ int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, doub
 {
     char filename[100];
     std::ofstream outfile;
-    
+
     sprintf(filename,"%s%s_dRdE.dat",pL.root,pL.detectors[detj].name);
     outfile.open(filename,ios::out);
    if( !outfile )
     {
         std::cout << "output file cannot be created" << std::endl;
         return 1;
-    } 
-    
+    }
+
     //write out WIMP parameters
     outfile << "//recoil spectrum for detector "  << pL.detectors[detj].name << std::endl;
     outfile << "//WIMP sim. pars: Mx = " << pL.w.Mx << " GeV, spin = " << pL.w.spin << std::endl << "//           ";
@@ -549,12 +583,12 @@ int writeRateOutput(parameterList pL, int detj, double *Er, double *signal, doub
     for( int i=1; i<16; i++)
         outfile << "C" << i << "n = " << pL.w.coeffn[i] << ", ";
     outfile << std::endl;
-    outfile << "//Astrophysical parameters: rho = " << pL.p.rho[0] << " GeV/cm^3, v0 = " << pL.p.v0[0]*3E5 << " km/s, vesc = " << pL.p.vesc[0]*3E5 << " km/s" << std::endl; 
+    outfile << "//Astrophysical parameters: rho = " << pL.p.rho[0] << " GeV/cm^3, v0 = " << pL.p.v0[0]*299792. << " km/s, vesc = " << pL.p.vesc[0]*299792. << " km/s" << std::endl; 
     outfile << "//Er(keV)         WIMP-rate         Bg-rate           total-rate (/keV/t/year)" << endl;
     
     outfile << std::setiosflags(std::ios::scientific) << std::setprecision(8);
     //write out rate data
-    for (int i=1; i < sizeData; i++)
+    for (int i=0; i < sizeData; i++)
          outfile << Er[i] <<  "    " << signal[i] << "    " << background[i] << "    " << signal[i]+background[i] << std::endl;
 
     outfile.close();
