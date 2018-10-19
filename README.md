@@ -16,7 +16,7 @@ requires:
 
 On debian based systems type:
 ```
-sudo apt-get install libgsl0-dev liblapack-dev 
+sudo apt-get install libgsl0-dev liblapack-dev gfortran
 ```
 
 optional:
